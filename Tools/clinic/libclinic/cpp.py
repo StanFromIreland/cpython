@@ -87,47 +87,25 @@ class Monitor:
             self.continuation = line[:-1].rstrip() + " "
             return
 
-        # we have to ignore preprocessor commands inside comments
-        #
-        # we also have to handle this:
-        #     /* start
-        #     ...
-        #     */   /*    <-- tricky!
-        #     ...
-        #     */
-        # and this:
-        #     /* start
-        #     ...
-        #     */   /* also tricky! */
+        # Handle comments
         if self.in_comment:
             if '*/' in line:
-                # snip out the comment and continue
-                #
-                # GCC allows
-                #    /* comment
-                #    */ #include <stdio.h>
-                # maybe other compilers too?
                 _, _, line = line.partition('*/')
                 self.in_comment = False
 
-        while True:
-            if '/*' in line:
-                if self.in_comment:
-                    self.fail("Nested block comment!")
+        while '/*' in line:
+            if self.in_comment:
+                self.fail("Nested block comment!")
 
-                before, _, remainder = line.partition('/*')
-                comment, comment_ends, after = remainder.partition('*/')
-                if comment_ends:
-                    # snip out the comment
-                    line = before.rstrip() + ' ' + after.lstrip()
-                    continue
-                # comment continues to eol
-                self.in_comment = True
-                line = before.rstrip()
+            before, _, remainder = line.partition('/*')
+            comment, comment_ends, after = remainder.partition('*/')
+            if comment_ends:
+                line = before.rstrip() + ' ' + after.lstrip()
+                continue
+            self.in_comment = True
+            line = before.rstrip()
             break
 
-        # we actually have some // comments
-        # (but block comments take precedence)
         before, line_comment, comment = line.partition('//')
         if line_comment:
             line = before.rstrip()
@@ -136,7 +114,8 @@ class Monitor:
             return
 
         line = line[1:].lstrip()
-        assert line
+        if not line:  # Ensure no empty lines reach below logic
+            return
 
         fields = line.split()
         token = fields[0].lower()
@@ -172,12 +151,8 @@ class Monitor:
             while pop_stack()[0] != 'if':
                 pass
 
-        else:
-            return
-
         if self.verbose:
             print(self.status())
-
 
 def _main(filenames: list[str] | None = None) -> None:
     filenames = filenames or sys.argv[1:]
