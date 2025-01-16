@@ -11,6 +11,8 @@ Without you, I would've stopped working on Python long ago!
 PS: In the standard Python distribution, this file is encoded in UTF-8
 and the list is in rough alphabetical order by last names.
 
+(Entries should be added in rough alphabetical order by last names)
+
 Aahz
 Erlend Egeberg Aasland
 Edison Abahurire
@@ -2123,5 +2125,3 @@ Jelle Zijlstra
 Gennadiy Zlobin
 Doug Zongker
 Peter Åstrand
-
-(Entries should be added in rough alphabetical order by last names)
