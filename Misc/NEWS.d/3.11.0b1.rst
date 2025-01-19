@@ -570,8 +570,8 @@ planned). Patch by Alex Waygood.
 
 ..
 
-.. gh-issue: 78157
 .. date: 2022-05-05-20-40-45
+.. gh-issue: 78157
 .. nonce: IA_9na
 .. section: Library
 
