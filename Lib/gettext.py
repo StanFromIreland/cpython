@@ -532,6 +532,8 @@ def translation(domain, localedir=None, languages=None,
                 class_=None, fallback=False):
     if class_ is None:
         class_ = GNUTranslations
+    # Filter out None from languages
+    languages = [lang for lang in languages if lang is not None] if isinstance(languages, list) else []
     mofiles = find(domain, localedir, languages, all=True)
     if not mofiles:
         if fallback:
