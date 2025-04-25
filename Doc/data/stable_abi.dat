@@ -822,6 +822,7 @@ func,PyUnicode_Substring,3.7,,
 func,PyUnicode_Tailmatch,3.2,,
 func,PyUnicode_Translate,3.2,,
 data,PyUnicode_Type,3.2,,
+data,PyUnicodeIter_Type,3.2,,
 func,PyUnicode_WriteChar,3.7,,
 type,PyVarObject,3.2,,members
 member,PyVarObject.ob_base,3.2,,
