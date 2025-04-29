@@ -1,0 +1,2 @@
+Use :func:`shlex.split` instead of splitting at :func:`os.path.sep`
+to correctly split in :func:`webbrowser.register_standard_browsers`.

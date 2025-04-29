@@ -553,7 +553,7 @@ def register_standard_browsers():
     # OK, now that we know what the default preference orders for each
     # platform are, allow user to override them with the BROWSER variable.
     if "BROWSER" in os.environ:
-        userchoices = os.environ["BROWSER"].split(os.pathsep)
+        userchoices = shlex.split(os.environ["BROWSER"])
         userchoices.reverse()
 
         # Treat choices in same way as if passed into get() but do register

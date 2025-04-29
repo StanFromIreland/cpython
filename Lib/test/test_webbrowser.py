@@ -6,13 +6,13 @@ import subprocess
 import sys
 import unittest
 import webbrowser
-from functools import partial
 from test import support
 from test.support import import_helper
 from test.support import is_apple_mobile
 from test.support import os_helper
 from test.support import requires_subprocess
 from test.support import threading_helper
+from test.support.os_helper import EnvironmentVarGuard
 from unittest import mock
 
 # The webbrowser module uses threading locks
@@ -434,6 +434,13 @@ class BrowserRegistrationTest(unittest.TestCase):
 
         ck_o.assert_not_called()
 
+
+
+    def test_issue_133138(self):
+        with EnvironmentVarGuard() as env:
+            env.set("BROWSER", "ext+container:name=ABC123&url=%s")
+            webbrowser.register_standard_browsers()
+            self.assertIn("ext+container:name=ABC123&url=%s", webbrowser._tryorder)
 
 class ImportTest(unittest.TestCase):
     def test_register(self):
