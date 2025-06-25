@@ -296,7 +296,7 @@ Names (identifiers and keywords)
 :data:`~token.NAME` tokens represent *identifiers*, *keywords*, and
 *soft keywords*.
 
-Within the ASCII range (U+0001..U+007F), the valid characters for names
+Within the ASCII range (U+0000..U+007F), the valid characters for names
 include the uppercase and lowercase letters (``A-Z`` and ``a-z``),
 the underscore ``_`` and, except for the first character, the digits
 ``0`` through ``9``.
