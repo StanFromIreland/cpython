@@ -239,8 +239,8 @@ Functions
    The result has the following attributes:
 
    - *adjustable*: ``True`` if the clock can be changed manually by the system
-     administrator, ``False`` otherwise. That this does not indicate whether
-     the clock can be adjusted automatically, for example, by a NTP daemon.
+     administrator, ``False`` otherwise. This does not indicate whether
+     the clock can be adjusted automatically, for example, by an NTP daemon.
    - *implementation*: The name of the underlying C function used to get
      the clock value.  Refer to :ref:`time-clock-id-constants` for possible values.
    - *monotonic*: ``True`` if the clock cannot go backward,
