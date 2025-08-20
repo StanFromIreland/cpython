@@ -244,6 +244,7 @@ void _PyAST_Fini(PyInterpreterState *interp)
     Py_CLEAR(state->msg);
     Py_CLEAR(state->name);
     Py_CLEAR(state->names);
+    Py_CLEAR(state->new_syntax);
     Py_CLEAR(state->op);
     Py_CLEAR(state->operand);
     Py_CLEAR(state->operator_type);
@@ -346,6 +347,7 @@ static int init_identifiers(struct ast_state *state)
     if ((state->msg = PyUnicode_InternFromString("msg")) == NULL) return -1;
     if ((state->name = PyUnicode_InternFromString("name")) == NULL) return -1;
     if ((state->names = PyUnicode_InternFromString("names")) == NULL) return -1;
+    if ((state->new_syntax = PyUnicode_InternFromString("new_syntax")) == NULL) return -1;
     if ((state->op = PyUnicode_InternFromString("op")) == NULL) return -1;
     if ((state->operand = PyUnicode_InternFromString("operand")) == NULL) return -1;
     if ((state->ops = PyUnicode_InternFromString("ops")) == NULL) return -1;
@@ -524,6 +526,7 @@ static const char * const TryStar_fields[]={
 static const char * const Assert_fields[]={
     "test",
     "msg",
+    "new_syntax",
 };
 static const char * const Import_fields[]={
     "names",
@@ -2218,6 +2221,22 @@ add_ast_annotations(struct ast_state *state)
             return 0;
         }
         cond = PyDict_SetItemString(Assert_annotations, "msg", type) == 0;
+        Py_DECREF(type);
+        if (!cond) {
+            Py_DECREF(Assert_annotations);
+            return 0;
+        }
+    }
+    {
+        PyObject *type = (PyObject *)&PyLong_Type;
+        type = _Py_union_type_or(type, Py_None);
+        cond = type != NULL;
+        if (!cond) {
+            Py_DECREF(Assert_annotations);
+            return 0;
+        }
+        cond = PyDict_SetItemString(Assert_annotations, "new_syntax", type) ==
+                                    0;
         Py_DECREF(type);
         if (!cond) {
             Py_DECREF(Assert_annotations);
@@ -6217,7 +6236,7 @@ init_types(void *arg)
         "     | Raise(expr? exc, expr? cause)\n"
         "     | Try(stmt* body, excepthandler* handlers, stmt* orelse, stmt* finalbody)\n"
         "     | TryStar(stmt* body, excepthandler* handlers, stmt* orelse, stmt* finalbody)\n"
-        "     | Assert(expr test, expr? msg)\n"
+        "     | Assert(expr test, expr? msg, int? new_syntax)\n"
         "     | Import(alias* names)\n"
         "     | ImportFrom(identifier? module, alias* names, int? level)\n"
         "     | Global(identifier* names)\n"
@@ -6342,10 +6361,12 @@ init_types(void *arg)
         "TryStar(stmt* body, excepthandler* handlers, stmt* orelse, stmt* finalbody)");
     if (!state->TryStar_type) return -1;
     state->Assert_type = make_type(state, "Assert", state->stmt_type,
-                                   Assert_fields, 2,
-        "Assert(expr test, expr? msg)");
+                                   Assert_fields, 3,
+        "Assert(expr test, expr? msg, int? new_syntax)");
     if (!state->Assert_type) return -1;
     if (PyObject_SetAttr(state->Assert_type, state->msg, Py_None) == -1)
+        return -1;
+    if (PyObject_SetAttr(state->Assert_type, state->new_syntax, Py_None) == -1)
         return -1;
     state->Import_type = make_type(state, "Import", state->stmt_type,
                                    Import_fields, 1,
@@ -7575,8 +7596,8 @@ _PyAST_TryStar(asdl_stmt_seq * body, asdl_excepthandler_seq * handlers,
 }
 
 stmt_ty
-_PyAST_Assert(expr_ty test, expr_ty msg, int lineno, int col_offset, int
-              end_lineno, int end_col_offset, PyArena *arena)
+_PyAST_Assert(expr_ty test, expr_ty msg, int new_syntax, int lineno, int
+              col_offset, int end_lineno, int end_col_offset, PyArena *arena)
 {
     stmt_ty p;
     if (!test) {
@@ -7590,6 +7611,7 @@ _PyAST_Assert(expr_ty test, expr_ty msg, int lineno, int col_offset, int
     p->kind = Assert_kind;
     p->v.Assert.test = test;
     p->v.Assert.msg = msg;
+    p->v.Assert.new_syntax = new_syntax;
     p->lineno = lineno;
     p->col_offset = col_offset;
     p->end_lineno = end_lineno;
@@ -9452,6 +9474,11 @@ ast2obj_stmt(struct ast_state *state, void* _o)
         value = ast2obj_expr(state, o->v.Assert.msg);
         if (!value) goto failed;
         if (PyObject_SetAttr(result, state->msg, value) == -1)
+            goto failed;
+        Py_DECREF(value);
+        value = ast2obj_int(state, o->v.Assert.new_syntax);
+        if (!value) goto failed;
+        if (PyObject_SetAttr(result, state->new_syntax, value) == -1)
             goto failed;
         Py_DECREF(value);
         break;
@@ -13434,6 +13461,7 @@ obj2ast_stmt(struct ast_state *state, PyObject* obj, stmt_ty* out, PyArena*
     if (isinstance) {
         expr_ty test;
         expr_ty msg;
+        int new_syntax;
 
         if (PyObject_GetOptionalAttr(obj, state->test, &tmp) < 0) {
             return -1;
@@ -13469,8 +13497,25 @@ obj2ast_stmt(struct ast_state *state, PyObject* obj, stmt_ty* out, PyArena*
             if (res != 0) goto failed;
             Py_CLEAR(tmp);
         }
-        *out = _PyAST_Assert(test, msg, lineno, col_offset, end_lineno,
-                             end_col_offset, arena);
+        if (PyObject_GetOptionalAttr(obj, state->new_syntax, &tmp) < 0) {
+            return -1;
+        }
+        if (tmp == NULL || tmp == Py_None) {
+            Py_CLEAR(tmp);
+            new_syntax = 0;
+        }
+        else {
+            int res;
+            if (_Py_EnterRecursiveCall(" while traversing 'Assert' node")) {
+                goto failed;
+            }
+            res = obj2ast_int(state, tmp, &new_syntax, arena);
+            _Py_LeaveRecursiveCall();
+            if (res != 0) goto failed;
+            Py_CLEAR(tmp);
+        }
+        *out = _PyAST_Assert(test, msg, new_syntax, lineno, col_offset,
+                             end_lineno, end_col_offset, arena);
         if (*out == NULL) goto failed;
         return 0;
     }

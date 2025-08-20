@@ -2951,6 +2951,11 @@ codegen_assert(compiler *c, stmt_ty s)
             _PyCompile_Warn(c, LOC(s), "assertion is always true, "
                                        "perhaps remove parentheses?"));
     }
+    if (s->v.Assert.new_syntax == 1) {
+            RETURN_IF_ERROR(
+            _PyCompile_Warn(c, LOC(s), "new assertation syntax, "
+                                       "this is not backward compatible"));
+    }
     if (OPTIMIZATION_LEVEL(c)) {
         return SUCCESS;
     }
