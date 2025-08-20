@@ -455,3 +455,16 @@ _Pypegen_stack_overflow(Parser *p)
 
 // Parser warnings
 
+void *
+_PyPegen_raise_SyntaxWarning(Parser *p, const char *msg, ...)
+{
+    PyObject *warn_msg = PyUnicode_FromString(msg);
+    if (warn_msg == NULL) {
+        return NULL;
+    }
+
+    location *loc = &p->last_stmt_location;
+    _PyErr_EmitSyntaxWarning(warn_msg, p->tok->filename, loc->lineno, loc->col_offset, loc->end_lineno, loc->end_col_offset);
+    Py_DECREF(warn_msg);
+    return NULL;
+}

@@ -4,7 +4,6 @@
 #include <Python.h>
 #include <pycore_ast.h>
 #include <pycore_token.h>
-#include <pycore_pyerrors.h>
 
 #include "lexer/state.h"
 
@@ -186,6 +185,8 @@ void *_PyPegen_raise_error_known_location(Parser *p, PyObject *errtype,
 void _Pypegen_set_syntax_error(Parser* p, Token* last_token);
 void _Pypegen_stack_overflow(Parser *p);
 
+void *_PyPegen_raise_SyntaxWarning(Parser *p, const char *msg, ...);
+
 static inline void *
 RAISE_ERROR_KNOWN_LOCATION(Parser *p, PyObject *errtype,
                            Py_ssize_t lineno, Py_ssize_t col_offset,
@@ -211,11 +212,8 @@ RAISE_ERROR_KNOWN_LOCATION(Parser *p, PyObject *errtype,
     RAISE_ERROR_KNOWN_LOCATION(p, PyExc_SyntaxError, (a)->lineno, (a)->col_offset, CURRENT_POS, CURRENT_POS, msg, ##__VA_ARGS__)
 #define RAISE_SYNTAX_ERROR_INVALID_TARGET(type, e) _RAISE_SYNTAX_ERROR_INVALID_TARGET(p, type, e)
 
-#define RAISE_SYNTAX_WARNING(msg, ...) {\
-         PyObject *_warn_msg = PyUnicode_FromString(msg);\
-        _PyErr_EmitSyntaxWarning(_warn_msg, (p)->tok->filename, _start_lineno, _start_col_offset, _end_lineno, _end_col_offset);\
-        Py_DECREF(_warn_msg);\
-}
+#define RAISE_SYNTAX_WARNING(msg, ...) _PyPegen_raise_SyntaxWarning(p, msg, ##__VA_ARGS__)
+
 
 Py_LOCAL_INLINE(void *)
 CHECK_CALL(Parser *p, void *result)
