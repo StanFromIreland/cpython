@@ -4,6 +4,7 @@
 #include <Python.h>
 #include <pycore_ast.h>
 #include <pycore_token.h>
+#include <pycore_pyerrors.h>
 
 #include "lexer/state.h"
 
@@ -209,6 +210,12 @@ RAISE_ERROR_KNOWN_LOCATION(Parser *p, PyObject *errtype,
 #define RAISE_SYNTAX_ERROR_STARTING_FROM(a, msg, ...) \
     RAISE_ERROR_KNOWN_LOCATION(p, PyExc_SyntaxError, (a)->lineno, (a)->col_offset, CURRENT_POS, CURRENT_POS, msg, ##__VA_ARGS__)
 #define RAISE_SYNTAX_ERROR_INVALID_TARGET(type, e) _RAISE_SYNTAX_ERROR_INVALID_TARGET(p, type, e)
+
+#define RAISE_SYNTAX_WARNING(msg, ...) {\
+         PyObject *_warn_msg = PyUnicode_FromString(msg);\
+        _PyErr_EmitSyntaxWarning(_warn_msg, (p)->tok->filename, _start_lineno, _start_col_offset, _end_lineno, _end_col_offset);\
+        Py_DECREF(_warn_msg);\
+}
 
 Py_LOCAL_INLINE(void *)
 CHECK_CALL(Parser *p, void *result)

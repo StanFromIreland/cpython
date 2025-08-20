@@ -452,3 +452,6 @@ _Pypegen_stack_overflow(Parser *p)
     PyErr_SetString(PyExc_MemoryError,
         "Parser stack overflowed - Python source too complex to parse");
 }
+
+// Parser warnings
+
