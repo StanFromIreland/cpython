@@ -2940,28 +2940,40 @@ codegen_from_import(compiler *c, stmt_ty s)
 static int
 codegen_assert(compiler *c, stmt_ty s)
 {
+    expr_ty test = s->v.Assert.test;
+    struct _expr const_expr;
+
     /* Always emit a warning if the test is a non-zero length tuple */
-    if ((s->v.Assert.test->kind == Tuple_kind &&
-        asdl_seq_LEN(s->v.Assert.test->v.Tuple.elts) > 0) ||
-        (s->v.Assert.test->kind == Constant_kind &&
-         PyTuple_Check(s->v.Assert.test->v.Constant.value) &&
-         PyTuple_Size(s->v.Assert.test->v.Constant.value) > 0))
+    if ((test->kind == Tuple_kind &&
+        asdl_seq_LEN(test->v.Tuple.elts) > 0))
     {
         RETURN_IF_ERROR(
-            _PyCompile_Warn(c, LOC(s), "assertion is always true, "
-                                       "perhaps remove parentheses?"));
+            _PyCompile_Warn(c, LOC(s), "assertion would be always true, "
+                                       "will assert first item of tuple"));
+        test = (expr_ty)asdl_seq_GET(test->v.Tuple.elts, 0);
+    }
+    else if (test->kind == Constant_kind &&
+         PyTuple_Check(test->v.Constant.value) &&
+         PyTuple_Size(test->v.Constant.value) > 0)
+    {
+        RETURN_IF_ERROR(
+            _PyCompile_Warn(c, LOC(s), "assertion would be always true! "
+                                       "will assert first item of tuple"));
+        const_expr.kind = Constant_kind;
+        const_expr.v.Constant = test->v.Constant;
+        test = &const_expr;
     }
     if (OPTIMIZATION_LEVEL(c)) {
         return SUCCESS;
     }
     NEW_JUMP_TARGET_LABEL(c, end);
-    RETURN_IF_ERROR(codegen_jump_if(c, LOC(s), s->v.Assert.test, end, 1));
+    RETURN_IF_ERROR(codegen_jump_if(c, LOC(s), test, end, 1));
     ADDOP_I(c, LOC(s), LOAD_COMMON_CONSTANT, CONSTANT_ASSERTIONERROR);
     if (s->v.Assert.msg) {
         VISIT(c, expr, s->v.Assert.msg);
         ADDOP_I(c, LOC(s), CALL, 0);
     }
-    ADDOP_I(c, LOC(s->v.Assert.test), RAISE_VARARGS, 1);
+    ADDOP_I(c, LOC(test), RAISE_VARARGS, 1);
 
     USE_LABEL(c, end);
     return SUCCESS;
