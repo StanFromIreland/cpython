@@ -2941,27 +2941,21 @@ static int
 codegen_assert(compiler *c, stmt_ty s)
 {
     expr_ty test = s->v.Assert.test;
-    struct _expr const_expr;
+    expr_ty msg = s->v.Assert.msg;
 
-    /* Always emit a warning if the test is a non-zero length tuple */
-    if ((test->kind == Tuple_kind &&
-        asdl_seq_LEN(test->v.Tuple.elts) > 0))
-    {
-        RETURN_IF_ERROR(
-            _PyCompile_Warn(c, LOC(s), "assertion would be always true, "
-                                       "will assert first item of tuple"));
-        test = (expr_ty)asdl_seq_GET(test->v.Tuple.elts, 0);
-    }
-    else if (test->kind == Constant_kind &&
-         PyTuple_Check(test->v.Constant.value) &&
-         PyTuple_Size(test->v.Constant.value) > 0)
-    {
-        RETURN_IF_ERROR(
-            _PyCompile_Warn(c, LOC(s), "assertion would be always true! "
-                                       "will assert first item of tuple"));
-        const_expr.kind = Constant_kind;
-        const_expr.v.Constant = test->v.Constant;
-        test = &const_expr;
+    if (test->kind == Tuple_kind) {
+        Py_ssize_t tuple_len = asdl_seq_LEN(test->v.Tuple.elts);
+        if (tuple_len == 2) {
+            if (msg == NULL) {
+                msg = (expr_ty)asdl_seq_GET(test->v.Tuple.elts, 1);
+            }
+        }
+        if (tuple_len > 0) {
+            RETURN_IF_ERROR(
+                _PyCompile_Warn(c, LOC(s), "new assertation syntax, "
+                                           "will assert first item of tuple"));
+            test = (expr_ty)asdl_seq_GET(test->v.Tuple.elts, 0);
+        }
     }
     if (OPTIMIZATION_LEVEL(c)) {
         return SUCCESS;
