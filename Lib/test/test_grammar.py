@@ -1289,7 +1289,7 @@ class GrammarTests(unittest.TestCase):
             self.fail("AssertionError not raised by assert 0")
 
         try:
-            assert 0 with "msg"
+            assert 0 else "msg"
         except AssertionError as e:
             self.assertEqual(e.args[0], "msg")
         else:
