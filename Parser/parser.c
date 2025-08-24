@@ -3391,7 +3391,7 @@ yield_stmt_rule(Parser *p)
 }
 
 // assert_stmt:
-//     | 'assert' expression 'with' expression ','?
+//     | 'assert' expression 'with' expression
 //     | 'assert' expression [',' expression]
 static stmt_ty
 assert_stmt_rule(Parser *p)
@@ -3414,16 +3414,14 @@ assert_stmt_rule(Parser *p)
     UNUSED(_start_lineno); // Only used by EXTRA macro
     int _start_col_offset = p->tokens[_mark]->col_offset;
     UNUSED(_start_col_offset); // Only used by EXTRA macro
-    { // 'assert' expression 'with' expression ','?
+    { // 'assert' expression 'with' expression
         if (p->error_indicator) {
             p->level--;
             return NULL;
         }
-        D(fprintf(stderr, "%*c> assert_stmt[%d-%d]: %s\n", p->level, ' ', _mark, p->mark, "'assert' expression 'with' expression ','?"));
+        D(fprintf(stderr, "%*c> assert_stmt[%d-%d]: %s\n", p->level, ' ', _mark, p->mark, "'assert' expression 'with' expression"));
         Token * _keyword;
         Token * _keyword_1;
-        void *_opt_var;
-        UNUSED(_opt_var); // Silence compiler warnings
         expr_ty a;
         expr_ty b;
         if (
@@ -3434,11 +3432,9 @@ assert_stmt_rule(Parser *p)
             (_keyword_1 = _PyPegen_expect_token(p, 654))  // token='with'
             &&
             (b = expression_rule(p))  // expression
-            &&
-            (_opt_var = _PyPegen_expect_token(p, 12), !p->error_indicator)  // ','?
         )
         {
-            D(fprintf(stderr, "%*c+ assert_stmt[%d-%d]: %s succeeded!\n", p->level, ' ', _mark, p->mark, "'assert' expression 'with' expression ','?"));
+            D(fprintf(stderr, "%*c+ assert_stmt[%d-%d]: %s succeeded!\n", p->level, ' ', _mark, p->mark, "'assert' expression 'with' expression"));
             Token *_token = _PyPegen_get_last_nonnwhitespace_token(p);
             if (_token == NULL) {
                 p->level--;
@@ -3458,7 +3454,7 @@ assert_stmt_rule(Parser *p)
         }
         p->mark = _mark;
         D(fprintf(stderr, "%*c%s assert_stmt[%d-%d]: %s failed!\n", p->level, ' ',
-                  p->error_indicator ? "ERROR!" : "-", _mark, p->mark, "'assert' expression 'with' expression ','?"));
+                  p->error_indicator ? "ERROR!" : "-", _mark, p->mark, "'assert' expression 'with' expression"));
     }
     { // 'assert' expression [',' expression]
         if (p->error_indicator) {
