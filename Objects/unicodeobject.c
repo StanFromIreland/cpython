@@ -12930,6 +12930,119 @@ unicode_removesuffix_impl(PyObject *self, PyObject *suffix)
     return unicode_result_unchanged(self);
 }
 
+/*[clinic input]
+str.dedent as unicode_dedent
+
+Remove common whitespace from every line in string.
+[clinic start generated code]*/
+
+static PyObject *
+unicode_dedent_impl(PyObject *self)
+/*[clinic end generated code: output=4d41f65b94304b63 input=8b9392d99e02fa20]*/
+{
+    PyObject *sep = PyUnicode_FromString("\n");
+    if (sep == NULL) {
+        return NULL;
+    }
+    PyObject *lines = PyUnicode_Split(self, sep, -1);
+    Py_DECREF(sep);
+    if (lines == NULL) {
+        return NULL;
+    }
+    Py_ssize_t nlines = PyList_GET_SIZE(lines);
+
+    PyObject *smallest = NULL, *largest = NULL;
+    for (Py_ssize_t i = 0; i < nlines; i++) {
+        PyObject *line = PyList_GET_ITEM(lines, i);
+        Py_ssize_t linelen = PyUnicode_GET_LENGTH(line);
+
+        if (linelen == 0) {
+            continue;
+        }
+
+        int kind = PyUnicode_KIND(line);
+        void *data = PyUnicode_DATA(line);
+        int all_ws = 1;
+        for (Py_ssize_t j = 0; j < linelen; j++) {
+            if (!Py_UNICODE_ISSPACE(PyUnicode_READ(kind, data, j))) {
+                all_ws = 0;
+                break;
+            }
+        }
+        if (all_ws) {
+            continue;
+        }
+
+        if (smallest == NULL || PyObject_RichCompareBool(line, smallest, Py_LT)) {
+            smallest = line;
+        }
+        if (largest == NULL || PyObject_RichCompareBool(line, largest, Py_GT)) {
+            largest = line;
+        }
+    }
+
+    Py_ssize_t margin = 0;
+    if (smallest != NULL && largest != NULL) {
+        Py_ssize_t minlen = Py_MIN(PyUnicode_GET_LENGTH(smallest),
+                                   PyUnicode_GET_LENGTH(largest));
+        int skind = PyUnicode_KIND(smallest);
+        int lkind = PyUnicode_KIND(largest);
+        const void *sdata = PyUnicode_DATA(smallest);
+        const void *ldata = PyUnicode_DATA(largest);
+
+        while (margin < minlen) {
+            Py_UCS4 c1 = PyUnicode_READ(skind, sdata, margin);
+            Py_UCS4 c2 = PyUnicode_READ(lkind, ldata, margin);
+            if (c1 != c2 || !(c1 == ' ' || c1 == '\t')) {
+                break;
+            }
+            margin++;
+        }
+    }
+
+    PyUnicodeWriter *writer = PyUnicodeWriter_Create(0);
+    if (writer == NULL) {
+        Py_DECREF(lines);
+        return NULL;
+    }
+
+    for (Py_ssize_t i = 0; i < nlines; i++) {
+        PyObject *line = PyList_GET_ITEM(lines, i);
+        Py_ssize_t linelen = PyUnicode_GET_LENGTH(line);
+
+        int all_ws = 1;
+        int kind = PyUnicode_KIND(line);
+        void *data = PyUnicode_DATA(line);
+        for (Py_ssize_t j = 0; j < linelen; j++) {
+            if (!Py_UNICODE_ISSPACE(PyUnicode_READ(kind, data, j))) {
+                all_ws = 0;
+                break;
+            }
+        }
+
+        if (!all_ws) {
+            Py_ssize_t start = Py_MIN(margin, linelen);
+            if (PyUnicodeWriter_WriteSubstring(writer, line, start, linelen) < 0) {
+                PyUnicodeWriter_Discard(writer);
+                Py_DECREF(lines);
+                return NULL;
+            }
+        }
+
+        if (i < nlines - 1) {
+            if (PyUnicodeWriter_WriteChar(writer, '\n') < 0) {
+                PyUnicodeWriter_Discard(writer);
+                Py_DECREF(lines);
+                return NULL;
+            }
+        }
+    }
+
+    Py_DECREF(lines);
+    return PyUnicodeWriter_Finish(writer);
+}
+
+
 static PyObject *
 unicode_repr(PyObject *unicode)
 {
@@ -14489,6 +14602,7 @@ static PyMethodDef unicode_methods[] = {
     UNICODE_ENDSWITH_METHODDEF
     UNICODE_REMOVEPREFIX_METHODDEF
     UNICODE_REMOVESUFFIX_METHODDEF
+    UNICODE_DEDENT_METHODDEF
     UNICODE_ISASCII_METHODDEF
     UNICODE_ISLOWER_METHODDEF
     UNICODE_ISUPPER_METHODDEF

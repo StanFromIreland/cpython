@@ -1639,7 +1639,9 @@ category.
 |                          |  :meth:`str.strip`                        |  :meth:`bytes.strip`                              |
 |                          +--------------------+----------------------+----------------------+----------------------------+
 |                          | :meth:`str.lstrip` | :meth:`str.rstrip`   | :meth:`bytes.lstrip` | :meth:`bytes.rstrip`       |
-+--------------------------+--------------------+----------------------+----------------------+----------------------------+
+|                          +--------------------+----------------------+----------------------+----------------------------+
+|                          |  :meth:`str.dedent`                       |                                                   |
+|--------------------------+-------------------------------------------+---------------------------------------------------+
 | Translation and Encoding |  :meth:`str.translate`                    |  :meth:`bytes.translate`                          |
 |                          +-------------------------------------------+---------------------------------------------------+
 |                          |  :meth:`str.maketrans`                    |  :meth:`bytes.maketrans`                          |
@@ -1861,6 +1863,16 @@ expression support in the :mod:`re` module).
       The value of the *errors* argument is now checked in :ref:`devmode` and
       in :ref:`debug mode <debug-build>`.
 
+
+.. method:: str.dedent()
+
+   Remove any common leading whitespace from every line.
+
+   This can be used to make triple-quoted strings line up with the left edge of the
+   display, while still presenting them in the source code in indented form.
+
+   .. versionadded:: next
+      See :PEP:`XXX` for more information.
 
 .. method:: str.endswith(suffix[, start[, end]])
 

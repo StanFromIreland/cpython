@@ -950,6 +950,92 @@ class BaseTest:
         self.checkraises(TypeError, 'hello', 'lstrip', 42, 42)
         self.checkraises(TypeError, 'hello', 'rstrip', 42, 42)
 
+    def test_dedent(self):
+        self.checkequal('hello\nworld', '  hello\n  world', 'dedent')
+        self.checkequal('hello\nmy\n  friend', '  hello\n  my\n    friend','dedent')
+
+        # Only spaces.
+        text = "    "
+        expect = ""
+        self.checkequal(expect, text, 'dedent')
+
+        # Only tabs.
+        text = "\t\t\t\t"
+        expect = ""
+        self.checkequal(expect, text, 'dedent')
+
+        # A mixture.
+        text = " \t  \t\t  \t "
+        expect = ""
+        self.checkequal(expect, text, 'dedent')
+
+        # ASCII whitespace.
+        text = "\f\n\r\t\v "
+        expect = "\n"
+        self.checkequal(expect, text, 'dedent')
+
+        # One newline.
+        text = "\n"
+        expect = "\n"
+        self.checkequal(expect, text, 'dedent')
+
+        # Windows-style newlines.
+        text = "\r\n" * 5
+        expect = "\n" * 5
+        self.checkequal(expect, text, 'dedent')
+
+        # Whitespace mixture.
+        text = "    \n\t\n  \n\t\t\n\n\n       "
+        expect = "\n\n\n\n\n\n"
+        self.checkequal(expect, text, 'dedent')
+
+        # Lines consisting only of whitespace are always normalised
+        text = "a\n \n\t\n"
+        expect = "a\n\n\n"
+        self.checkequal(expect, text, 'dedent')
+
+        # Whitespace characters on non-empty lines are retained
+        text = "a\r\n\r\n\r\n"
+        expect = "a\r\n\n\n"
+        self.checkequal(expect, text, 'dedent')
+
+        # Uneven indentation with declining indent level.
+        text = "     Foo\n    Bar\n"  # 5 spaces, then 4
+        expect = " Foo\nBar\n"
+        self.checkequal(expect, text, 'dedent')
+
+        # Declining indent level with blank line.
+        text = "     Foo\n\n    Bar\n"  # 5 spaces, blank, then 4
+        expect = " Foo\n\nBar\n"
+        self.checkequal(expect, text, 'dedent')
+
+        # Declining indent level with whitespace only line.
+        text = "     Foo\n    \n    Bar\n"  # 5 spaces, then 4, then 4
+        expect = " Foo\n\nBar\n"
+        self.checkequal(expect, text, 'dedent')
+
+        text = "  hello\tthere\n  how are\tyou?"
+        expect = "hello\tthere\nhow are\tyou?"
+        self.checkequal(expect, text, 'dedent')
+
+        # dedent() only removes whitespace that can be uniformly removed!
+        text = "\thello there\n\thow are you?"
+        expect = "hello there\nhow are you?"
+        self.checkequal(expect, text, 'dedent')
+
+        text = '''\
+        def foo():
+            while 1:
+                return foo
+        '''
+        expect = '''\
+def foo():
+    while 1:
+        return foo
+'''
+        self.checkequal(expect, text, 'dedent')
+
+
     def test_ljust(self):
         self.checkequal('abc       ', 'abc', 'ljust', 10)
         self.checkequal('abc   ', 'abc', 'ljust', 6)
