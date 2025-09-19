@@ -1,14 +1,15 @@
 document.addEventListener("DOMContentLoaded", function () {
   // add the search form and bind the events
-  document
-    .querySelector("h1")
-    .insertAdjacentHTML(
-      "afterend",
-      [
-        "<p>Filter entries by content:",
-        '<input type="text" value="" id="searchbox" style="width: 50%">',
-        '<input type="submit" id="searchbox-submit" value="Filter"></p>',
-      ].join("\n"),
+  const label = Documentation.gettext("Filter entries by content:");
+  const button = Documentation.gettext("Filter");
+
+  document.querySelector("h1").insertAdjacentHTML(
+    "afterend",
+    `<p>
+       ${label}
+       <input type="text" value="" id="searchbox" style="width:50%">
+       <input type="submit" id="searchbox-submit" value="${button}">
+     </p>`
     );
 
   function doFilter() {
