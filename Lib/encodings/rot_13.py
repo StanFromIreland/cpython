@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """ Python Character Mapping Codec for ROT13.
 
 This codec de/encodes from str to str.
@@ -107,7 +106,3 @@ rot13_map.update({
 
 def rot13(infile, outfile):
     outfile.write(codecs.encode(infile.read(), 'rot-13'))
-
-if __name__ == '__main__':
-    import sys
-    rot13(sys.stdin, sys.stdout)
