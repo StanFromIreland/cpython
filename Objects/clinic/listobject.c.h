@@ -395,6 +395,32 @@ list_remove(PyObject *self, PyObject *value)
     return return_value;
 }
 
+PyDoc_STRVAR(list_discard__doc__,
+"discard($self, value, /)\n"
+"--\n"
+"\n"
+"Remove first occurrence of value.\n"
+"\n"
+"Does not raise an error if the value is not present.");
+
+#define LIST_DISCARD_METHODDEF    \
+    {"discard", (PyCFunction)list_discard, METH_O, list_discard__doc__},
+
+static PyObject *
+list_discard_impl(PyListObject *self, PyObject *value);
+
+static PyObject *
+list_discard(PyObject *self, PyObject *value)
+{
+    PyObject *return_value = NULL;
+
+    Py_BEGIN_CRITICAL_SECTION(self);
+    return_value = list_discard_impl((PyListObject *)self, value);
+    Py_END_CRITICAL_SECTION();
+
+    return return_value;
+}
+
 PyDoc_STRVAR(list___init____doc__,
 "list(iterable=(), /)\n"
 "--\n"
@@ -468,4 +494,4 @@ list___reversed__(PyObject *self, PyObject *Py_UNUSED(ignored))
 {
     return list___reversed___impl((PyListObject *)self);
 }
-/*[clinic end generated code: output=ae13fc2b56dc27c2 input=a9049054013a1b77]*/
+/*[clinic end generated code: output=7116016d830f0a7b input=a9049054013a1b77]*/

@@ -3380,6 +3380,38 @@ list_remove_impl(PyListObject *self, PyObject *value)
     return NULL;
 }
 
+/*[clinic input]
+@critical_section
+list.discard
+
+     value: object
+     /
+
+Remove first occurrence of value, if it exists.
+[clinic start generated code]*/
+
+static PyObject *
+list_discard_impl(PyListObject *self, PyObject *value)
+/*[clinic end generated code: output=4d8c1aee9a101f8c input=af5a1565fc71e475]*/
+{
+    Py_ssize_t i;
+
+    for (i = 0; i < Py_SIZE(self); i++) {
+        PyObject *obj = self->ob_item[i];
+        Py_INCREF(obj);
+        int cmp = PyObject_RichCompareBool(obj, value, Py_EQ);
+        Py_DECREF(obj);
+        if (cmp > 0) {
+            if (list_ass_slice_lock_held(self, i, i+1, NULL) == 0)
+                Py_RETURN_NONE;
+            return NULL;
+        }
+        else if (cmp < 0)
+            return NULL;
+    }
+    Py_RETURN_NONE;
+}
+
 static int
 list_traverse(PyObject *self, visitproc visit, void *arg)
 {
@@ -3557,6 +3589,7 @@ static PyMethodDef list_methods[] = {
     LIST_EXTEND_METHODDEF
     LIST_POP_METHODDEF
     LIST_REMOVE_METHODDEF
+    LIST_DISCARD_METHODDEF
     LIST_INDEX_METHODDEF
     LIST_COUNT_METHODDEF
     LIST_REVERSE_METHODDEF
