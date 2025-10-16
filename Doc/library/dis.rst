@@ -1809,6 +1809,13 @@ iterations of the loop.
    .. versionadded:: 3.11
 
 
+.. opcode:: SEND_GEN
+
+   Specialized version of :opcode:`SEND` for generator and coroutine objects.
+
+   .. versionadded:: 3.12
+
+
 .. opcode:: HAVE_ARGUMENT
 
    This is not really an opcode.  It identifies the dividing line between

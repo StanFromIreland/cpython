@@ -199,8 +199,8 @@ Make the slice object hashable. Patch by Will Bradshaw and Furkan Onder.
 .. section: Core and Builtins
 
 Change the ``SEND`` instruction to leave the receiver on the stack. This
-allows the specialized form of ``SEND`` to skip the chain of C calls and
-jump directly to the ``RESUME`` in the generator or coroutine.
+allows the specialized form of ``SEND``, :opcode:`SEND_GEN`, to skip the chain
+of C calls and jump directly to the ``RESUME`` in the generator or coroutine.
 
 ..
 
