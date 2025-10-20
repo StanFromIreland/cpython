@@ -3,6 +3,7 @@ What's New in IDLE 3.14.0
 Released on 2025-10-07
 =========================
 
+gh-139742: IDLE - Colorize 't' prefix for template strings.
 
 gh-112936: IDLE - Include Shell menu in single-process mode,
 though with Restart Shell and View Last Restart disabled.
@@ -23,6 +24,9 @@ What's New in IDLE 3.13.0
 (since 3.12.0)
 Released on 2024-10-07
 =========================
+
+gh-96491: Deduplicate version number in IDLE shell title bar after saving to a
+file.
 
 gh-120104: Fix padding in config and search dialog windows in IDLE.
 
