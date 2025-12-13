@@ -177,7 +177,7 @@ function getSampleCount(line) {
       ?.textContent.trim()
       .replace(/,/g, "");
   }
-  return parseInt(text, 10) || 0;
+  return parseInt(text) || 0;
 }
 
 // ============================================================================
@@ -430,9 +430,9 @@ function calculateHeatColor(intensity) {
  */
 function applySpanHeatColors(enable) {
   document.querySelectorAll(".instr-span").forEach((span) => {
-    const samples = enable ? parseInt(span.dataset.samples, 10) || 0 : 0;
+    const samples = enable ? parseInt(span.dataset.samples) || 0 : 0;
     if (samples > 0) {
-      const intensity = samples / (parseInt(span.dataset.maxSamples, 10) || 1);
+      const intensity = samples / (parseInt(span.dataset.maxSamples) || 1);
       span.style.backgroundColor = calculateHeatColor(intensity);
       span.style.borderRadius = "2px";
       span.style.padding = "0 1px";
@@ -455,8 +455,8 @@ let activeTooltip = null;
 function showSpanTooltip(span) {
   hideSpanTooltip();
 
-  const samples = parseInt(span.dataset.samples, 10) || 0;
-  const maxSamples = parseInt(span.dataset.maxSamples, 10) || 1;
+  const samples = parseInt(span.dataset.samples) || 0;
+  const maxSamples = parseInt(span.dataset.maxSamples) || 1;
   const pct = span.dataset.pct || "0";
   const opcodes = span.dataset.opcodes || "";
 
@@ -720,8 +720,8 @@ function highlightSourceFromBytecode(e) {
     const locations = JSON.parse(locationsStr || "[]");
     const spans = lineDiv.querySelectorAll(".instr-span");
     spans.forEach((span) => {
-      const spanStart = parseInt(span.dataset.colStart, 10);
-      const spanEnd = parseInt(span.dataset.colEnd, 10);
+      const spanStart = parseInt(span.dataset.colStart);
+      const spanEnd = parseInt(span.dataset.colEnd);
       for (const loc of locations) {
         // Match if span's range matches instruction's location
         if (spanStart === loc.col_offset && spanEnd === loc.end_col_offset) {
