@@ -122,6 +122,14 @@ repos:
         entry: Space found in path, move to Misc/NEWS.d/next/Core_and_Builtins/
         files: Misc/NEWS.d/next/Core and Builtins/20.*.rst
 
+  - repo: https://github.com/biomejs/pre-commit
+    rev: v2.3.8
+    hooks:
+      - id: biome-check
+        name: Lint Tachyon JS/CSS/HTML
+        files: ^Lib/profiling/sampling/_(?!vendor).*\.(js|css|html)$
+        exclude: ^Lib/profiling/sampling/_flamegraph_assets/flamegraph\.js$
+
   - repo: meta
     hooks:
       - id: check-hooks-apply

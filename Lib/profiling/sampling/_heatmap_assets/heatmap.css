@@ -57,16 +57,38 @@
   overflow: hidden;
 }
 
-.stat-card:nth-child(1) { --i: 0; --card-color: 55, 118, 171; }
-.stat-card:nth-child(2) { --i: 1; --card-color: 40, 167, 69; }
-.stat-card:nth-child(3) { --i: 2; --card-color: 255, 193, 7; }
-.stat-card:nth-child(4) { --i: 3; --card-color: 111, 66, 193; }
-.stat-card:nth-child(5) { --i: 4; --card-color: 220, 53, 69; }
-.stat-card:nth-child(6) { --i: 5; --card-color: 23, 162, 184; }
+.stat-card:nth-child(1) {
+  --i: 0;
+  --card-color: 55, 118, 171;
+}
+.stat-card:nth-child(2) {
+  --i: 1;
+  --card-color: 40, 167, 69;
+}
+.stat-card:nth-child(3) {
+  --i: 2;
+  --card-color: 255, 193, 7;
+}
+.stat-card:nth-child(4) {
+  --i: 3;
+  --card-color: 111, 66, 193;
+}
+.stat-card:nth-child(5) {
+  --i: 4;
+  --card-color: 220, 53, 69;
+}
+.stat-card:nth-child(6) {
+  --i: 5;
+  --card-color: 23, 162, 184;
+}
 
 .stat-card:hover {
   border-color: rgba(var(--card-color), 0.6);
-  background: linear-gradient(135deg, rgba(var(--card-color), 0.08) 0%, var(--bg-primary) 100%);
+  background: linear-gradient(
+    135deg,
+    rgba(var(--card-color), 0.08) 0%,
+    var(--bg-primary) 100%
+  );
   transform: translateY(-2px);
   box-shadow: 0 4px 16px rgba(var(--card-color), 0.15);
 }
@@ -78,7 +100,11 @@
   align-items: center;
   justify-content: center;
   font-size: 18px;
-  background: linear-gradient(135deg, rgba(var(--card-color), 0.15) 0%, rgba(var(--card-color), 0.05) 100%);
+  background: linear-gradient(
+    135deg,
+    rgba(var(--card-color), 0.15) 0%,
+    rgba(var(--card-color), 0.05) 100%
+  );
   border: 1px solid rgba(var(--card-color), 0.2);
   border-radius: 10px;
   flex-shrink: 0;
@@ -87,7 +113,11 @@
 
 .stat-card:hover .stat-icon {
   transform: scale(1.05) rotate(-2deg);
-  background: linear-gradient(135deg, rgba(var(--card-color), 0.25) 0%, rgba(var(--card-color), 0.1) 100%);
+  background: linear-gradient(
+    135deg,
+    rgba(var(--card-color), 0.25) 0%,
+    rgba(var(--card-color), 0.1) 100%
+  );
 }
 
 .stat-data {
@@ -122,7 +152,8 @@
   right: 0;
   height: 30px;
   opacity: 0.1;
-  background: linear-gradient(180deg,
+  background: linear-gradient(
+    180deg,
     transparent 0%,
     rgba(var(--card-color), 0.3) 100%
   );
@@ -147,8 +178,14 @@
   overflow: hidden;
 }
 
-.rate-card:nth-child(5) { animation-delay: 0.32s; --rate-color: 220, 53, 69; }
-.rate-card:nth-child(6) { animation-delay: 0.40s; --rate-color: 255, 152, 0; }
+.rate-card:nth-child(5) {
+  animation-delay: 0.32s;
+  --rate-color: 220, 53, 69;
+}
+.rate-card:nth-child(6) {
+  animation-delay: 0.4s;
+  --rate-color: 255, 152, 0;
+}
 
 .rate-card:hover {
   border-color: rgba(var(--rate-color), 0.5);
@@ -175,7 +212,11 @@
   align-items: center;
   justify-content: center;
   font-size: 18px;
-  background: linear-gradient(135deg, rgba(var(--rate-color), 0.15) 0%, rgba(var(--rate-color), 0.05) 100%);
+  background: linear-gradient(
+    135deg,
+    rgba(var(--rate-color), 0.15) 0%,
+    rgba(var(--rate-color), 0.05) 100%
+  );
   border: 1px solid rgba(var(--rate-color), 0.2);
   border-radius: 10px;
   flex-shrink: 0;
@@ -226,7 +267,7 @@
 
 /* Shimmer animation on rate bars */
 .rate-fill::after {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   left: -100%;
@@ -637,7 +678,8 @@
   width: 150px;
   flex-shrink: 0;
   height: 20px;
-  background: linear-gradient(90deg,
+  background: linear-gradient(
+    90deg,
     var(--bg-tertiary) 0%,
     var(--heat-2) 25%,
     var(--heat-4) 50%,
@@ -1142,7 +1184,9 @@
   color: var(--code-accent);
   cursor: pointer;
   font-size: 10px;
-  transition: transform var(--transition-fast), color var(--transition-fast);
+  transition:
+    transform var(--transition-fast),
+    color var(--transition-fast);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -1403,7 +1447,7 @@
 }
 
 .span-tooltip::after {
-  content: '';
+  content: "";
   position: absolute;
   bottom: -7px;
   left: 50%;

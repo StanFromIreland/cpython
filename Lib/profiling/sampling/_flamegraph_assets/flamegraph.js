@@ -482,14 +482,14 @@ function createFlamegraph(tooltip, rootValue) {
   const width = chartArea ? chartArea.clientWidth - 32 : window.innerWidth - 320;
   const heatColors = getHeatColors();
 
-  let chart = flamegraph()
+  const chart = flamegraph()
     .width(width)
     .cellHeight(20)
     .transitionDuration(300)
     .minFrameSize(1)
     .tooltip(tooltip)
     .inverted(true)
-    .setColorMapper(function (d) {
+    .setColorMapper((d) => {
       // Root node should be transparent
       if (d.depth === 0) return 'transparent';
 
@@ -606,7 +606,7 @@ function initSearchHandlers() {
     }
   }
 
-  searchInput.addEventListener("input", function () {
+  searchInput.addEventListener("input", () => {
     clearTimeout(searchTimeout);
     searchTimeout = setTimeout(performSearch, 150);
   });
@@ -638,7 +638,7 @@ function clearSearch() {
 
 function handleResize() {
   let resizeTimeout;
-  window.addEventListener("resize", function () {
+  window.addEventListener("resize", () => {
     clearTimeout(resizeTimeout);
     resizeTimeout = setTimeout(resizeChart, 100);
   });
@@ -655,7 +655,7 @@ function initSidebarResize() {
   const minWidth = 200;
   const maxWidth = 600;
 
-  resizeHandle.addEventListener('mousedown', function(e) {
+  resizeHandle.addEventListener('mousedown', (e) => {
     isResizing = true;
     startX = e.clientX;
     startWidth = sidebar.offsetWidth;
@@ -664,7 +664,7 @@ function initSidebarResize() {
     e.preventDefault();
   });
 
-  document.addEventListener('mousemove', function(e) {
+  document.addEventListener('mousemove', (e) => {
     if (!isResizing) return;
 
     const deltaX = e.clientX - startX;
@@ -673,7 +673,7 @@ function initSidebarResize() {
     e.preventDefault();
   });
 
-  document.addEventListener('mouseup', function() {
+  document.addEventListener('mouseup', () => {
     if (isResizing) {
       isResizing = false;
       resizeHandle.classList.remove('resizing');
@@ -1303,7 +1303,7 @@ function initFlamegraph() {
 }
 
 // Keyboard shortcut: Enter/Space activates toggle switches
-document.addEventListener('keydown', function(e) {
+document.addEventListener('keydown', (e) => {
     if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
         return;
     }

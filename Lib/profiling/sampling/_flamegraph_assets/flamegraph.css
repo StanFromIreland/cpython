@@ -9,7 +9,8 @@
    Layout Overrides (Flamegraph-specific)
    -------------------------------------------------------------------------- */
 
-html, body {
+html,
+body {
   height: 100%;
   overflow: hidden;
 }
@@ -207,7 +208,7 @@ html, body {
 }
 
 .sidebar-resize-handle::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 50%;
   left: 50%;
@@ -308,7 +309,10 @@ body.resizing-sidebar {
 }
 
 .section-content {
-  transition: max-height var(--transition-slow) ease-out, opacity var(--transition-normal) ease-out, padding var(--transition-normal) ease-out;
+  transition:
+    max-height var(--transition-slow) ease-out,
+    opacity var(--transition-normal) ease-out,
+    padding var(--transition-normal) ease-out;
   max-height: 1000px;
   opacity: 1;
 }
@@ -318,7 +322,10 @@ body.resizing-sidebar {
   opacity: 0;
   padding-top: 0;
   pointer-events: none;
-  transition: max-height var(--transition-slow) ease-in, opacity var(--transition-normal) ease-in, padding var(--transition-normal) ease-in;
+  transition:
+    max-height var(--transition-slow) ease-in,
+    opacity var(--transition-normal) ease-in,
+    padding var(--transition-normal) ease-in;
 }
 
 /* --------------------------------------------------------------------------
@@ -346,14 +353,30 @@ body.resizing-sidebar {
   position: relative;
 }
 
-.summary-card:nth-child(1) { --i: 0; --card-color: 55, 118, 171; }
-.summary-card:nth-child(2) { --i: 1; --card-color: 40, 167, 69; }
-.summary-card:nth-child(3) { --i: 2; --card-color: 255, 193, 7; }
-.summary-card:nth-child(4) { --i: 3; --card-color: 111, 66, 193; }
+.summary-card:nth-child(1) {
+  --i: 0;
+  --card-color: 55, 118, 171;
+}
+.summary-card:nth-child(2) {
+  --i: 1;
+  --card-color: 40, 167, 69;
+}
+.summary-card:nth-child(3) {
+  --i: 2;
+  --card-color: 255, 193, 7;
+}
+.summary-card:nth-child(4) {
+  --i: 3;
+  --card-color: 111, 66, 193;
+}
 
 .summary-card:hover {
   border-color: rgba(var(--card-color), 0.6);
-  background: linear-gradient(135deg, rgba(var(--card-color), 0.08) 0%, var(--bg-primary) 100%);
+  background: linear-gradient(
+    135deg,
+    rgba(var(--card-color), 0.08) 0%,
+    var(--bg-primary) 100%
+  );
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(var(--card-color), 0.15);
 }
@@ -365,7 +388,11 @@ body.resizing-sidebar {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, rgba(var(--card-color), 0.15) 0%, rgba(var(--card-color), 0.05) 100%);
+  background: linear-gradient(
+    135deg,
+    rgba(var(--card-color), 0.15) 0%,
+    rgba(var(--card-color), 0.05) 100%
+  );
   border: 1px solid rgba(var(--card-color), 0.2);
   border-radius: 6px;
   flex-shrink: 0;
@@ -374,7 +401,11 @@ body.resizing-sidebar {
 
 .summary-card:hover .summary-icon {
   transform: scale(1.05);
-  background: linear-gradient(135deg, rgba(var(--card-color), 0.25) 0%, rgba(var(--card-color), 0.1) 100%);
+  background: linear-gradient(
+    135deg,
+    rgba(var(--card-color), 0.25) 0%,
+    rgba(var(--card-color), 0.1) 100%
+  );
 }
 
 .summary-data {
@@ -451,7 +482,7 @@ body.resizing-sidebar {
 }
 
 .efficiency-fill::after {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   left: -100%;
@@ -491,10 +522,18 @@ body.resizing-sidebar {
   animation-delay: calc(var(--i, 0) * 0.05s);
 }
 
-.stat-tile:nth-child(1) { --i: 0; }
-.stat-tile:nth-child(2) { --i: 1; }
-.stat-tile:nth-child(3) { --i: 2; }
-.stat-tile:nth-child(4) { --i: 3; }
+.stat-tile:nth-child(1) {
+  --i: 0;
+}
+.stat-tile:nth-child(2) {
+  --i: 1;
+}
+.stat-tile:nth-child(3) {
+  --i: 2;
+}
+.stat-tile:nth-child(4) {
+  --i: 3;
+}
 
 .stat-tile:hover {
   transform: translateY(-2px);
@@ -519,16 +558,34 @@ body.resizing-sidebar {
 }
 
 /* Stat tile color variants */
-.stat-tile--green  { --tile-color: 40, 167, 69; --tile-text: #28a745; }
-.stat-tile--red    { --tile-color: 220, 53, 69; --tile-text: #dc3545; }
-.stat-tile--yellow { --tile-color: 255, 193, 7; --tile-text: #d39e00; }
-.stat-tile--purple { --tile-color: 111, 66, 193; --tile-text: #6f42c1; }
+.stat-tile--green {
+  --tile-color: 40, 167, 69;
+  --tile-text: #28a745;
+}
+.stat-tile--red {
+  --tile-color: 220, 53, 69;
+  --tile-text: #dc3545;
+}
+.stat-tile--yellow {
+  --tile-color: 255, 193, 7;
+  --tile-text: #d39e00;
+}
+.stat-tile--purple {
+  --tile-color: 111, 66, 193;
+  --tile-text: #6f42c1;
+}
 
 .stat-tile[class*="--"] {
   border-color: rgba(var(--tile-color), 0.4);
-  background: linear-gradient(135deg, rgba(var(--tile-color), 0.08) 0%, var(--bg-primary) 100%);
+  background: linear-gradient(
+    135deg,
+    rgba(var(--tile-color), 0.08) 0%,
+    var(--bg-primary) 100%
+  );
 }
-.stat-tile[class*="--"] .stat-tile-value { color: var(--tile-text); }
+.stat-tile[class*="--"] .stat-tile-value {
+  color: var(--tile-text);
+}
 
 /* --------------------------------------------------------------------------
    Hotspot Cards
@@ -581,14 +638,27 @@ body.resizing-sidebar {
   font-weight: 700;
   font-size: 12px;
   flex-shrink: 0;
-  background: linear-gradient(135deg, var(--python-blue) 0%, var(--python-blue-light) 100%);
+  background: linear-gradient(
+    135deg,
+    var(--python-blue) 0%,
+    var(--python-blue-light) 100%
+  );
   color: white;
   box-shadow: 0 2px 4px rgba(55, 118, 171, 0.3);
 }
 
-.hotspot-rank--1 { background: linear-gradient(135deg, #d4af37, #f4d03f); color: #5a4a00; }
-.hotspot-rank--2 { background: linear-gradient(135deg, #a8a8a8, #c0c0c0); color: #4a4a4a; }
-.hotspot-rank--3 { background: linear-gradient(135deg, #cd7f32, #e6a55a); color: #5a3d00; }
+.hotspot-rank--1 {
+  background: linear-gradient(135deg, #d4af37, #f4d03f);
+  color: #5a4a00;
+}
+.hotspot-rank--2 {
+  background: linear-gradient(135deg, #a8a8a8, #c0c0c0);
+  color: #4a4a4a;
+}
+.hotspot-rank--3 {
+  background: linear-gradient(135deg, #cd7f32, #e6a55a);
+  color: #5a3d00;
+}
 
 .hotspot-info {
   flex: 1;
@@ -627,7 +697,6 @@ body.resizing-sidebar {
 /* --------------------------------------------------------------------------
    Legend
    -------------------------------------------------------------------------- */
-
 
 .legend {
   display: flex;
@@ -950,7 +1019,11 @@ body.resizing-sidebar {
 }
 
 .tooltip-opcode-bar-fill {
-  background: linear-gradient(90deg, var(--python-blue), var(--python-blue-light));
+  background: linear-gradient(
+    90deg,
+    var(--python-blue),
+    var(--python-blue-light)
+  );
   height: 100%;
 }
 
