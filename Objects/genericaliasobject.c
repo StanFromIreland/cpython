@@ -133,10 +133,15 @@ ga_repr_items_list(_PyUnicodeWriter *writer, PyObject *p)
                 return -1;
             }
         }
-        PyObject *item = PyList_GET_ITEM(p, i);
+        PyObject *item = PyList_GetItemRef(p, i);
+        if (item == NULL) {
+            return -1;  // list can be mutated in a callback
+        }
         if (ga_repr_item(writer, item) < 0) {
+            Py_DECREF(item);
             return -1;
         }
+        Py_DECREF(item);
     }
 
     if (_PyUnicodeWriter_WriteASCIIString(writer, "]", 1) < 0) {
@@ -517,11 +522,22 @@ _Py_subs_parameters(PyObject *self, PyObject *args, PyObject *parameters, PyObje
             return NULL;
         }
         if (unpack) {
+            if (!PyTuple_Check(arg)) {
+                Py_DECREF(newargs);
+                Py_DECREF(item);
+                PyObject *original = PyTuple_GET_ITEM(args, iarg);
+                PyErr_Format(PyExc_TypeError,
+                             "expected __typing_subst__ of %T objects to return a tuple, not %T",
+                             original, arg);
+                Py_DECREF(arg);
+                return NULL;
+            }
             jarg = tuple_extend(&newargs, jarg,
                     &PyTuple_GET_ITEM(arg, 0), PyTuple_GET_SIZE(arg));
             Py_DECREF(arg);
             if (jarg < 0) {
                 Py_DECREF(item);
+                assert(newargs == NULL);
                 return NULL;
             }
         }

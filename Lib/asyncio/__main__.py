@@ -72,7 +72,8 @@ class AsyncIOInteractiveConsole(InteractiveColoredConsole):
             return
         except BaseException:
             if keyboard_interrupted:
-                self.write("\nKeyboardInterrupt\n")
+                if not CAN_USE_PYREPL:
+                    self.write("\nKeyboardInterrupt\n")
             else:
                 self.showtraceback()
             return self.STATEMENT_FAILED
@@ -83,16 +84,17 @@ class REPLThread(threading.Thread):
         global return_code
 
         try:
-            banner = (
-                f'asyncio REPL {sys.version} on {sys.platform}\n'
-                f'Use "await" directly instead of "asyncio.run()".\n'
-                f'Type "help", "copyright", "credits" or "license" '
-                f'for more information.\n'
-            )
+            if not sys.flags.quiet:
+                banner = (
+                    f'asyncio REPL {sys.version} on {sys.platform}\n'
+                    f'Use "await" directly instead of "asyncio.run()".\n'
+                    f'Type "help", "copyright", "credits" or "license" '
+                    f'for more information.\n'
+                )
 
-            console.write(banner)
+                console.write(banner)
 
-            if startup_path := os.getenv("PYTHONSTARTUP"):
+            if not sys.flags.isolated and (startup_path := os.getenv("PYTHONSTARTUP")):
                 sys.audit("cpython.run_startup", startup_path)
 
                 import tokenize
@@ -201,4 +203,5 @@ if __name__ == '__main__':
             break
 
     console.write('exiting asyncio REPL...\n')
+    loop.close()
     sys.exit(return_code)

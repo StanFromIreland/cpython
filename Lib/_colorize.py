@@ -1,5 +1,4 @@
 from __future__ import annotations
-import io
 import os
 import sys
 
@@ -77,21 +76,29 @@ def get_colors(
 
 
 def can_colorize(*, file: IO[str] | IO[bytes] | None = None) -> bool:
+
+    def _safe_getenv(k: str, fallback: str | None = None) -> str | None:
+        """Exception-safe environment retrieval. See gh-128636."""
+        try:
+            return os.environ.get(k, fallback)
+        except Exception:
+            return fallback
+
     if file is None:
         file = sys.stdout
 
     if not sys.flags.ignore_environment:
-        if os.environ.get("PYTHON_COLORS") == "0":
+        if _safe_getenv("PYTHON_COLORS") == "0":
             return False
-        if os.environ.get("PYTHON_COLORS") == "1":
+        if _safe_getenv("PYTHON_COLORS") == "1":
             return True
-    if os.environ.get("NO_COLOR"):
+    if _safe_getenv("NO_COLOR"):
         return False
     if not COLORIZE:
         return False
-    if os.environ.get("FORCE_COLOR"):
+    if _safe_getenv("FORCE_COLOR"):
         return True
-    if os.environ.get("TERM") == "dumb":
+    if _safe_getenv("TERM") == "dumb":
         return False
 
     if not hasattr(file, "fileno"):
@@ -108,5 +115,5 @@ def can_colorize(*, file: IO[str] | IO[bytes] | None = None) -> bool:
 
     try:
         return os.isatty(file.fileno())
-    except io.UnsupportedOperation:
+    except OSError:
         return hasattr(file, "isatty") and file.isatty()

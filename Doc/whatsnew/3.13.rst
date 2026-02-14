@@ -1578,8 +1578,6 @@ and are now removed:
 
   * :pypi:`bcrypt`:
     Modern password hashing for your software and your servers.
-  * :pypi:`passlib`:
-    Comprehensive password hashing framework supporting over 30 schemes.
   * :pypi:`argon2-cffi`:
     The secure Argon2 password hashing algorithm.
   * :pypi:`legacycrypt`:
@@ -1872,6 +1870,7 @@ New Deprecations
   * Deprecate the non-standard and undocumented :class:`~decimal.Decimal`
     format specifier ``'N'``,
     which is only supported in the :mod:`!decimal` module's C implementation.
+    Scheduled to be removed in Python 3.18.
     (Contributed by Serhiy Storchaka in :gh:`89902`.)
 
 * :mod:`dis`:
@@ -2033,6 +2032,10 @@ New Deprecations
 .. include:: ../deprecations/pending-removal-in-3.15.rst
 
 .. include:: ../deprecations/pending-removal-in-3.16.rst
+
+.. include:: ../deprecations/pending-removal-in-3.17.rst
+
+.. include:: ../deprecations/pending-removal-in-3.18.rst
 
 .. include:: ../deprecations/pending-removal-in-future.rst
 
@@ -2343,7 +2346,7 @@ Limited C API Changes
   * :c:func:`PySys_AuditTuple`
   * :c:func:`PyType_GetModuleByDef`
 
-  (Contributed by Victor Stinner in :gh:`85283`, :gh:`85283`, and :gh:`116936`.)
+  (Contributed by Victor Stinner in :gh:`85283` and :gh:`116936`.)
 
 * Python built with :option:`--with-trace-refs` (tracing references)
   now supports the :ref:`Limited API <limited-c-api>`.
@@ -2848,7 +2851,7 @@ tarfile
 -------
 
 * :func:`~tarfile.data_filter` now normalizes symbolic link targets in order to
-  avoid path traversal attacks.Add commentMore actions
+  avoid path traversal attacks.
   (Contributed by Petr Viktorin in :gh:`127987` and :cve:`2025-4138`.)
 * :func:`~tarfile.TarFile.extractall` now skips fixing up directory attributes
   when a directory was removed or replaced by another kind of file.

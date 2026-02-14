@@ -164,7 +164,7 @@ This table summarizes the comparison operations:
    pair: object; numeric
    pair: objects; comparing
 
-Objects of different types, except different numeric types, never compare equal.
+Unless stated otherwise, objects of different types never compare equal.
 The ``==`` operator is always defined but for some object types (for example,
 class objects) is equivalent to :keyword:`is`. The ``<``, ``<=``, ``>`` and ``>=``
 operators are only defined where they make sense; for example, they raise a
@@ -1049,11 +1049,14 @@ Notes:
    still ``0``.
 
 (4)
-   The slice of *s* from *i* to *j* is defined as the sequence of items with index
-   *k* such that ``i <= k < j``.  If *i* or *j* is greater than ``len(s)``, use
-   ``len(s)``.  If *i* is omitted or ``None``, use ``0``.  If *j* is omitted or
-   ``None``, use ``len(s)``.  If *i* is greater than or equal to *j*, the slice is
-   empty.
+   The slice of *s* from *i* to *j* is defined as the sequence of items with
+   index *k* such that ``i <= k < j``.
+
+   * If *i* is omitted or ``None``, use ``0``.
+   * If *j* is omitted or ``None``, use ``len(s)``.
+   * If *i* or *j* is less than ``-len(s)``, use ``0``.
+   * If *i* or *j* is greater than ``len(s)``, use ``len(s)``.
+   * If *i* is greater than or equal to *j*, the slice is empty.
 
 (5)
    The slice of *s* from *i* to *j* with step *k* is defined as the sequence of
@@ -1706,6 +1709,14 @@ expression support in the :mod:`re` module).
    lowercase letter ``'ß'`` is equivalent to ``"ss"``. Since it is already
    lowercase, :meth:`lower` would do nothing to ``'ß'``; :meth:`casefold`
    converts it to ``"ss"``.
+   For example:
+
+   .. doctest::
+
+      >>> 'straße'.lower()
+      'straße'
+      >>> 'straße'.casefold()
+      'strasse'
 
    The casefolding algorithm is
    `described in section 3.13 'Default Case Folding' of the Unicode Standard
@@ -1858,10 +1869,16 @@ expression support in the :mod:`re` module).
    ``{}``.  Each replacement field contains either the numeric index of a
    positional argument, or the name of a keyword argument.  Returns a copy of
    the string where each replacement field is replaced with the string value of
-   the corresponding argument.
+   the corresponding argument. For example:
+
+   .. doctest::
 
       >>> "The sum of 1 + 2 is {0}".format(1+2)
       'The sum of 1 + 2 is 3'
+      >>> "The sum of {a} + {b} is {answer}".format(answer=1+2, a=1, b=2)
+      'The sum of 1 + 2 is 3'
+      >>> "{1} expects the {0} Inquisition!".format("Spanish", "Nobody")
+      'Nobody expects the Spanish Inquisition!'
 
    See :ref:`formatstrings` for a description of the various formatting options
    that can be specified in format strings.
@@ -1901,7 +1918,20 @@ expression support in the :mod:`re` module).
 .. method:: str.index(sub[, start[, end]])
 
    Like :meth:`~str.find`, but raise :exc:`ValueError` when the substring is
-   not found.
+   not found. For example:
+
+   .. doctest::
+
+      >>> 'spam, spam, spam'.index('spam')
+      0
+      >>> 'spam, spam, spam'.index('eggs')
+      Traceback (most recent call last):
+        File "<python-input-0>", line 1, in <module>
+          'spam, spam, spam'.index('eggs')
+          ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^
+      ValueError: substring not found
+
+   See also :meth:`rindex`.
 
 
 .. method:: str.isalnum()
@@ -1909,7 +1939,18 @@ expression support in the :mod:`re` module).
    Return ``True`` if all characters in the string are alphanumeric and there is at
    least one character, ``False`` otherwise.  A character ``c`` is alphanumeric if one
    of the following returns ``True``: ``c.isalpha()``, ``c.isdecimal()``,
-   ``c.isdigit()``, or ``c.isnumeric()``.
+   ``c.isdigit()``, or ``c.isnumeric()``. For example::
+
+   .. doctest::
+
+      >>> 'abc123'.isalnum()
+      True
+      >>> 'abc123!@#'.isalnum()
+      False
+      >>> ''.isalnum()
+      False
+      >>> ' '.isalnum()
+      False
 
 
 .. method:: str.isalpha()
@@ -1921,13 +1962,32 @@ expression support in the :mod:`re` module).
    from the `Alphabetic property defined in the section 4.10 'Letters, Alphabetic, and
    Ideographic' of the Unicode Standard
    <https://www.unicode.org/versions/Unicode15.1.0/ch04.pdf>`_.
+   For example:
+
+   .. doctest::
+
+      >>> 'Letters and spaces'.isalpha()
+      False
+      >>> 'LettersOnly'.isalpha()
+      True
+      >>> 'µ'.isalpha()  # non-ASCII characters can be considered alphabetical too
+      True
+
+   See :ref:`unicode-properties`.
 
 
 .. method:: str.isascii()
 
    Return ``True`` if the string is empty or all characters in the string are ASCII,
    ``False`` otherwise.
-   ASCII characters have code points in the range U+0000-U+007F.
+   ASCII characters have code points in the range U+0000-U+007F. For example:
+
+   .. doctest::
+
+      >>> 'ASCII characters'.isascii()
+      True
+      >>> 'µ'.isascii()
+      False
 
    .. versionadded:: 3.7
 
@@ -1937,9 +1997,18 @@ expression support in the :mod:`re` module).
    Return ``True`` if all characters in the string are decimal
    characters and there is at least one character, ``False``
    otherwise. Decimal characters are those that can be used to form
-   numbers in base 10, e.g. U+0660, ARABIC-INDIC DIGIT
+   numbers in base 10, such as U+0660, ARABIC-INDIC DIGIT
    ZERO.  Formally a decimal character is a character in the Unicode
-   General Category "Nd".
+   General Category "Nd". For example:
+
+   .. doctest::
+
+      >>> '0123456789'.isdecimal()
+      True
+      >>> '٠١٢٣٤٥٦٧٨٩'.isdecimal()  # Arabic-Indic digits zero to nine
+      True
+      >>> 'alphabetic'.isdecimal()
+      False
 
 
 .. method:: str.isdigit()
@@ -1985,6 +2054,21 @@ expression support in the :mod:`re` module).
    that have the Unicode numeric value property, e.g. U+2155,
    VULGAR FRACTION ONE FIFTH.  Formally, numeric characters are those with the property
    value Numeric_Type=Digit, Numeric_Type=Decimal or Numeric_Type=Numeric.
+   For example:
+
+   .. doctest::
+
+      >>> '0123456789'.isnumeric()
+      True
+      >>> '٠١٢٣٤٥٦٧٨٩'.isnumeric()  # Arabic-indic digit zero to nine
+      True
+      >>> '⅕'.isnumeric()  # Vulgar fraction one fifth
+      True
+      >>> '²'.isdecimal(), '²'.isdigit(),  '²'.isnumeric()
+      (False, True, True)
+
+   See also :meth:`isdecimal` and :meth:`isdigit`. Numeric characters are
+   a superset of decimal numbers.
 
 
 .. method:: str.isprintable()
@@ -2003,6 +2087,15 @@ expression support in the :mod:`re` module).
    Nonprintable characters are those in group Separator or Other (Z or C),
    except the ASCII space.
 
+   For example:
+
+   .. doctest::
+
+      >>> ''.isprintable(), ' '.isprintable()
+      (True, True)
+      >>> '\t'.isprintable(), '\n'.isprintable()
+      (False, False)
+
 
 .. method:: str.isspace()
 
@@ -2020,6 +2113,19 @@ expression support in the :mod:`re` module).
    Return ``True`` if the string is a titlecased string and there is at least one
    character, for example uppercase characters may only follow uncased characters
    and lowercase characters only cased ones.  Return ``False`` otherwise.
+
+   For example:
+
+   .. doctest::
+
+      >>> 'Spam, Spam, Spam'.istitle()
+      True
+      >>> 'spam, spam, spam'.istitle()
+      False
+      >>> 'SPAM, SPAM, SPAM'.istitle()
+      False
+
+   See also :meth:`title`.
 
 
 .. method:: str.isupper()
@@ -2045,7 +2151,16 @@ expression support in the :mod:`re` module).
    Return a string which is the concatenation of the strings in *iterable*.
    A :exc:`TypeError` will be raised if there are any non-string values in
    *iterable*, including :class:`bytes` objects.  The separator between
-   elements is the string providing this method.
+   elements is the string providing this method. For example:
+
+   .. doctest::
+
+      >>> ', '.join(['spam', 'spam', 'spam'])
+      'spam, spam, spam'
+      >>> '-'.join('Python')
+      'P-y-t-h-o-n'
+
+   See also :meth:`split`.
 
 
 .. method:: str.ljust(width, fillchar=' ', /)
@@ -2054,11 +2169,29 @@ expression support in the :mod:`re` module).
    done using the specified *fillchar* (default is an ASCII space). The
    original string is returned if *width* is less than or equal to ``len(s)``.
 
+   For example:
+
+   .. doctest::
+
+      >>> 'Python'.ljust(10)
+      'Python    '
+      >>> 'Python'.ljust(10, '.')
+      'Python....'
+      >>> 'Monty Python'.ljust(10, '.')
+      'Monty Python'
+
+   See also :meth:`rjust`.
+
 
 .. method:: str.lower()
 
    Return a copy of the string with all the cased characters [4]_ converted to
-   lowercase.
+   lowercase. For example:
+
+   .. doctest::
+
+      >>> 'Lower Method Example'.lower()
+      'lower method example'
 
    The lowercasing algorithm used is
    `described in section 3.13 'Default Case Folding' of the Unicode Standard
@@ -2109,12 +2242,27 @@ expression support in the :mod:`re` module).
    after the separator.  If the separator is not found, return a 3-tuple containing
    the string itself, followed by two empty strings.
 
+   For example:
+
+   .. doctest::
+
+      >>> 'Monty Python'.partition(' ')
+      ('Monty', ' ', 'Python')
+      >>> "Monty Python's Flying Circus".partition(' ')
+      ('Monty', ' ', "Python's Flying Circus")
+      >>> 'Monty Python'.partition('-')
+      ('Monty Python', '', '')
+
+   See also :meth:`rpartition`.
+
 
 .. method:: str.removeprefix(prefix, /)
 
    If the string starts with the *prefix* string, return
    ``string[len(prefix):]``. Otherwise, return a copy of the original
-   string::
+   string:
+
+   .. doctest::
 
       >>> 'TestHook'.removeprefix('Test')
       'Hook'
@@ -2123,12 +2271,16 @@ expression support in the :mod:`re` module).
 
    .. versionadded:: 3.9
 
+   See also :meth:`removesuffix` and :meth:`startswith`.
+
 
 .. method:: str.removesuffix(suffix, /)
 
    If the string ends with the *suffix* string and that *suffix* is not empty,
    return ``string[:-len(suffix)]``. Otherwise, return a copy of the
-   original string::
+   original string:
+
+   .. doctest::
 
       >>> 'MiscTests'.removesuffix('Tests')
       'Misc'
@@ -2137,12 +2289,22 @@ expression support in the :mod:`re` module).
 
    .. versionadded:: 3.9
 
+   See also :meth:`removeprefix` and :meth:`endswith`.
+
 
 .. method:: str.replace(old, new, /, count=-1)
 
    Return a copy of the string with all occurrences of substring *old* replaced by
    *new*.  If *count* is given, only the first *count* occurrences are replaced.
    If *count* is not specified or ``-1``, then all occurrences are replaced.
+   For example:
+
+   .. doctest::
+
+      >>> 'spam, spam, spam'.replace('spam', 'eggs')
+      'eggs, eggs, eggs'
+      >>> 'spam, spam, spam'.replace('spam', 'eggs', 1)
+      'eggs, spam, spam'
 
    .. versionchanged:: 3.13
       *count* is now supported as a keyword argument.
@@ -2153,12 +2315,36 @@ expression support in the :mod:`re` module).
    Return the highest index in the string where substring *sub* is found, such
    that *sub* is contained within ``s[start:end]``.  Optional arguments *start*
    and *end* are interpreted as in slice notation.  Return ``-1`` on failure.
+   For example:
+
+   .. doctest::
+
+      >>> 'spam, spam, spam'.rfind('sp')
+      12
+      >>> 'spam, spam, spam'.rfind('sp', 0, 10)
+      6
+
+   See also :meth:`find` and :meth:`rindex`.
 
 
 .. method:: str.rindex(sub[, start[, end]])
 
    Like :meth:`rfind` but raises :exc:`ValueError` when the substring *sub* is not
    found.
+   For example:
+
+   .. doctest::
+
+      >>> 'spam, spam, spam'.rindex('spam')
+      12
+      >>> 'spam, spam, spam'.rindex('eggs')
+      Traceback (most recent call last):
+        File "<stdin-0>", line 1, in <module>
+          'spam, spam, spam'.rindex('eggs')
+          ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^
+      ValueError: substring not found
+
+   See also :meth:`index` and :meth:`find`.
 
 
 .. method:: str.rjust(width, fillchar=' ', /)
@@ -2175,6 +2361,19 @@ expression support in the :mod:`re` module).
    after the separator.  If the separator is not found, return a 3-tuple containing
    two empty strings, followed by the string itself.
 
+   For example:
+
+   .. doctest::
+
+      >>> 'Monty Python'.rpartition(' ')
+      ('Monty', ' ', 'Python')
+      >>> "Monty Python's Flying Circus".rpartition(' ')
+      ("Monty Python's Flying", ' ', 'Circus')
+      >>> 'Monty Python'.rpartition('-')
+      ('', '', 'Monty Python')
+
+   See also :meth:`partition`.
+
 
 .. method:: str.rsplit(sep=None, maxsplit=-1)
 
@@ -2190,20 +2389,26 @@ expression support in the :mod:`re` module).
    Return a copy of the string with trailing characters removed.  The *chars*
    argument is a string specifying the set of characters to be removed.  If omitted
    or ``None``, the *chars* argument defaults to removing whitespace.  The *chars*
-   argument is not a suffix; rather, all combinations of its values are stripped::
+   argument is not a suffix; rather, all combinations of its values are stripped.
+   For example:
+
+   .. doctest::
 
       >>> '   spacious   '.rstrip()
       '   spacious'
       >>> 'mississippi'.rstrip('ipz')
       'mississ'
 
-   See :meth:`str.removesuffix` for a method that will remove a single suffix
+   See :meth:`removesuffix` for a method that will remove a single suffix
    string rather than all of a set of characters.  For example::
 
       >>> 'Monty Python'.rstrip(' Python')
       'M'
       >>> 'Monty Python'.removesuffix(' Python')
       'Monty'
+
+   See also :meth:`strip`.
+
 
 .. method:: str.split(sep=None, maxsplit=-1)
 
@@ -2258,6 +2463,8 @@ expression support in the :mod:`re` module).
       []
       >>> "   foo   ".split(maxsplit=0)
       ['foo   ']
+
+   See also :meth:`join`.
 
 
 .. index::
@@ -2333,6 +2540,19 @@ expression support in the :mod:`re` module).
    test string beginning at that position.  With optional *end*, stop comparing
    string at that position.
 
+   For example:
+
+   .. doctest::
+
+      >>> 'Python'.startswith('Py')
+      True
+      >>> 'a tuple of prefixes'.startswith(('at', 'a'))
+      True
+      >>> 'Python is amazing'.startswith('is', 7)
+      True
+
+   See also :meth:`endswith` and :meth:`removeprefix`.
+
 
 .. method:: str.strip(chars=None, /)
 
@@ -2340,7 +2560,11 @@ expression support in the :mod:`re` module).
    The *chars* argument is a string specifying the set of characters to be removed.
    If omitted or ``None``, the *chars* argument defaults to removing whitespace.
    The *chars* argument is not a prefix or suffix; rather, all combinations of its
-   values are stripped::
+   values are stripped.
+
+   For example:
+
+   .. doctest::
 
       >>> '   spacious   '.strip()
       'spacious'
@@ -2351,11 +2575,16 @@ expression support in the :mod:`re` module).
    from the string. Characters are removed from the leading end until
    reaching a string character that is not contained in the set of
    characters in *chars*. A similar action takes place on the trailing end.
-   For example::
+
+   For example:
+
+   .. doctest::
 
       >>> comment_string = '#....... Section 3.2.1 Issue #32 .......'
       >>> comment_string.strip('.#! ')
       'Section 3.2.1 Issue #32'
+
+   See also :meth:`rstrip`.
 
 
 .. method:: str.swapcase()
@@ -2397,6 +2626,8 @@ expression support in the :mod:`re` module).
         ...
         >>> titlecase("they're bill's friends.")
         "They're Bill's Friends."
+
+   See also :meth:`istitle`.
 
 
 .. method:: str.translate(table, /)
@@ -4542,164 +4773,172 @@ The constructors for both classes work the same:
    objects.  If *iterable* is not specified, a new empty set is
    returned.
 
-   Sets can be created by several means:
+Sets can be created by several means:
 
-   * Use a comma-separated list of elements within braces: ``{'jack', 'sjoerd'}``
-   * Use a set comprehension: ``{c for c in 'abracadabra' if c not in 'abc'}``
-   * Use the type constructor: ``set()``, ``set('foobar')``, ``set(['a', 'b', 'foo'])``
+* Use a comma-separated list of elements within braces: ``{'jack', 'sjoerd'}``
+* Use a set comprehension: ``{c for c in 'abracadabra' if c not in 'abc'}``
+* Use the type constructor: ``set()``, ``set('foobar')``, ``set(['a', 'b', 'foo'])``
 
-   Instances of :class:`set` and :class:`frozenset` provide the following
-   operations:
+Instances of :class:`set` and :class:`frozenset` provide the following
+operations:
 
-   .. describe:: len(s)
+.. describe:: len(s)
 
-      Return the number of elements in set *s* (cardinality of *s*).
+   Return the number of elements in set *s* (cardinality of *s*).
 
-   .. describe:: x in s
+.. describe:: x in s
 
-      Test *x* for membership in *s*.
+   Test *x* for membership in *s*.
 
-   .. describe:: x not in s
+.. describe:: x not in s
 
-      Test *x* for non-membership in *s*.
+   Test *x* for non-membership in *s*.
 
-   .. method:: isdisjoint(other, /)
+.. method:: frozenset.isdisjoint(other, /)
+            set.isdisjoint(other, /)
 
-      Return ``True`` if the set has no elements in common with *other*.  Sets are
-      disjoint if and only if their intersection is the empty set.
+   Return ``True`` if the set has no elements in common with *other*.  Sets are
+   disjoint if and only if their intersection is the empty set.
 
-   .. method:: issubset(other, /)
-               set <= other
+.. method:: frozenset.issubset(other, /)
+            set.issubset(other, /)
+.. describe:: set <= other
 
-      Test whether every element in the set is in *other*.
+   Test whether every element in the set is in *other*.
 
-   .. method:: set < other
+.. describe:: set < other
 
-      Test whether the set is a proper subset of *other*, that is,
-      ``set <= other and set != other``.
+   Test whether the set is a proper subset of *other*, that is,
+   ``set <= other and set != other``.
 
-   .. method:: issuperset(other, /)
-               set >= other
+.. method:: frozenset.issuperset(other, /)
+            set.issuperset(other, /)
+.. describe:: set >= other
 
-      Test whether every element in *other* is in the set.
+   Test whether every element in *other* is in the set.
 
-   .. method:: set > other
+.. describe:: set > other
 
-      Test whether the set is a proper superset of *other*, that is, ``set >=
-      other and set != other``.
+   Test whether the set is a proper superset of *other*, that is, ``set >=
+   other and set != other``.
 
-   .. method:: union(*others)
-               set | other | ...
+.. method:: frozenset.union(*others)
+            set.union(*others)
+.. describe:: set | other | ...
 
-      Return a new set with elements from the set and all others.
+   Return a new set with elements from the set and all others.
 
-   .. method:: intersection(*others)
-               set & other & ...
+.. method:: frozenset.intersection(*others)
+            set.intersection(*others)
+.. describe:: set & other & ...
 
-      Return a new set with elements common to the set and all others.
+   Return a new set with elements common to the set and all others.
 
-   .. method:: difference(*others)
-               set - other - ...
+.. method:: frozenset.difference(*others)
+            set.difference(*others)
+.. describe:: set - other - ...
 
-      Return a new set with elements in the set that are not in the others.
+   Return a new set with elements in the set that are not in the others.
 
-   .. method:: symmetric_difference(other, /)
-               set ^ other
+.. method:: frozenset.symmetric_difference(other, /)
+            set.symmetric_difference(other, /)
+.. describe:: set ^ other
 
-      Return a new set with elements in either the set or *other* but not both.
+   Return a new set with elements in either the set or *other* but not both.
 
-   .. method:: copy()
+.. method:: frozenset.copy()
+            set.copy()
 
-      Return a shallow copy of the set.
-
-
-   Note, the non-operator versions of :meth:`union`, :meth:`intersection`,
-   :meth:`difference`, :meth:`symmetric_difference`, :meth:`issubset`, and
-   :meth:`issuperset` methods will accept any iterable as an argument.  In
-   contrast, their operator based counterparts require their arguments to be
-   sets.  This precludes error-prone constructions like ``set('abc') & 'cbs'``
-   in favor of the more readable ``set('abc').intersection('cbs')``.
-
-   Both :class:`set` and :class:`frozenset` support set to set comparisons. Two
-   sets are equal if and only if every element of each set is contained in the
-   other (each is a subset of the other). A set is less than another set if and
-   only if the first set is a proper subset of the second set (is a subset, but
-   is not equal). A set is greater than another set if and only if the first set
-   is a proper superset of the second set (is a superset, but is not equal).
-
-   Instances of :class:`set` are compared to instances of :class:`frozenset`
-   based on their members.  For example, ``set('abc') == frozenset('abc')``
-   returns ``True`` and so does ``set('abc') in set([frozenset('abc')])``.
-
-   The subset and equality comparisons do not generalize to a total ordering
-   function.  For example, any two nonempty disjoint sets are not equal and are not
-   subsets of each other, so *all* of the following return ``False``: ``a<b``,
-   ``a==b``, or ``a>b``.
-
-   Since sets only define partial ordering (subset relationships), the output of
-   the :meth:`list.sort` method is undefined for lists of sets.
-
-   Set elements, like dictionary keys, must be :term:`hashable`.
-
-   Binary operations that mix :class:`set` instances with :class:`frozenset`
-   return the type of the first operand.  For example: ``frozenset('ab') |
-   set('bc')`` returns an instance of :class:`frozenset`.
-
-   The following table lists operations available for :class:`set` that do not
-   apply to immutable instances of :class:`frozenset`:
-
-   .. method:: update(*others)
-               set |= other | ...
-
-      Update the set, adding elements from all others.
-
-   .. method:: intersection_update(*others)
-               set &= other & ...
-
-      Update the set, keeping only elements found in it and all others.
-
-   .. method:: difference_update(*others)
-               set -= other | ...
-
-      Update the set, removing elements found in others.
-
-   .. method:: symmetric_difference_update(other, /)
-               set ^= other
-
-      Update the set, keeping only elements found in either set, but not in both.
-
-   .. method:: add(elem, /)
-
-      Add element *elem* to the set.
-
-   .. method:: remove(elem, /)
-
-      Remove element *elem* from the set.  Raises :exc:`KeyError` if *elem* is
-      not contained in the set.
-
-   .. method:: discard(elem, /)
-
-      Remove element *elem* from the set if it is present.
-
-   .. method:: pop()
-
-      Remove and return an arbitrary element from the set.  Raises
-      :exc:`KeyError` if the set is empty.
-
-   .. method:: clear()
-
-      Remove all elements from the set.
+   Return a shallow copy of the set.
 
 
-   Note, the non-operator versions of the :meth:`update`,
-   :meth:`intersection_update`, :meth:`difference_update`, and
-   :meth:`symmetric_difference_update` methods will accept any iterable as an
-   argument.
+Note, the non-operator versions of :meth:`~frozenset.union`,
+:meth:`~frozenset.intersection`, :meth:`~frozenset.difference`, :meth:`~frozenset.symmetric_difference`, :meth:`~frozenset.issubset`, and
+:meth:`~frozenset.issuperset` methods will accept any iterable as an argument.  In
+contrast, their operator based counterparts require their arguments to be
+sets.  This precludes error-prone constructions like ``set('abc') & 'cbs'``
+in favor of the more readable ``set('abc').intersection('cbs')``.
 
-   Note, the *elem* argument to the :meth:`~object.__contains__`,
-   :meth:`remove`, and
-   :meth:`discard` methods may be a set.  To support searching for an equivalent
-   frozenset, a temporary one is created from *elem*.
+Both :class:`set` and :class:`frozenset` support set to set comparisons. Two
+sets are equal if and only if every element of each set is contained in the
+other (each is a subset of the other). A set is less than another set if and
+only if the first set is a proper subset of the second set (is a subset, but
+is not equal). A set is greater than another set if and only if the first set
+is a proper superset of the second set (is a superset, but is not equal).
+
+Instances of :class:`set` are compared to instances of :class:`frozenset`
+based on their members.  For example, ``set('abc') == frozenset('abc')``
+returns ``True`` and so does ``set('abc') in set([frozenset('abc')])``.
+
+The subset and equality comparisons do not generalize to a total ordering
+function.  For example, any two nonempty disjoint sets are not equal and are not
+subsets of each other, so *all* of the following return ``False``: ``a<b``,
+``a==b``, or ``a>b``.
+
+Since sets only define partial ordering (subset relationships), the output of
+the :meth:`list.sort` method is undefined for lists of sets.
+
+Set elements, like dictionary keys, must be :term:`hashable`.
+
+Binary operations that mix :class:`set` instances with :class:`frozenset`
+return the type of the first operand.  For example: ``frozenset('ab') |
+set('bc')`` returns an instance of :class:`frozenset`.
+
+The following table lists operations available for :class:`set` that do not
+apply to immutable instances of :class:`frozenset`:
+
+.. method:: set.update(*others)
+.. describe:: set |= other | ...
+
+   Update the set, adding elements from all others.
+
+.. method:: set.intersection_update(*others)
+.. describe:: set &= other & ...
+
+   Update the set, keeping only elements found in it and all others.
+
+.. method:: set.difference_update(*others)
+.. describe:: set -= other | ...
+
+   Update the set, removing elements found in others.
+
+.. method:: set.symmetric_difference_update(other, /)
+.. describe:: set ^= other
+
+   Update the set, keeping only elements found in either set, but not in both.
+
+.. method:: set.add(elem, /)
+
+   Add element *elem* to the set.
+
+.. method:: set.remove(elem, /)
+
+   Remove element *elem* from the set.  Raises :exc:`KeyError` if *elem* is
+   not contained in the set.
+
+.. method:: set.discard(elem, /)
+
+   Remove element *elem* from the set if it is present.
+
+.. method:: set.pop()
+
+   Remove and return an arbitrary element from the set.  Raises
+   :exc:`KeyError` if the set is empty.
+
+.. method:: set.clear()
+
+   Remove all elements from the set.
+
+
+Note, the non-operator versions of the :meth:`~set.update`,
+:meth:`~set.intersection_update`, :meth:`~set.difference_update`, and
+:meth:`~set.symmetric_difference_update` methods will accept any iterable as an
+argument.
+
+Note, the *elem* argument to the :meth:`~object.__contains__`,
+:meth:`~set.remove`, and
+:meth:`~set.discard` methods may be a set.  To support searching for an equivalent
+frozenset, a temporary one is created from *elem*.
 
 
 .. _typesmapping:
@@ -4757,9 +4996,6 @@ can be used interchangeably to index the same dictionary entry.
    added to the dictionary created from the positional argument.  If a key
    being added is already present, the value from the keyword argument
    replaces the value from the positional argument.
-
-   Providing keyword arguments as in the first example only works for keys that
-   are valid Python identifiers.  Otherwise, any valid keys can be used.
 
    Dictionaries compare equal if and only if they have the same ``(key,
    value)`` pairs (regardless of ordering). Order comparisons ('<', '<=', '>=', '>') raise
@@ -4819,13 +5055,13 @@ can be used interchangeably to index the same dictionary entry.
 
       .. index:: __missing__()
 
-      If a subclass of dict defines a method :meth:`__missing__` and *key*
+      If a subclass of dict defines a method :meth:`~object.__missing__` and *key*
       is not present, the ``d[key]`` operation calls that method with the key *key*
       as argument.  The ``d[key]`` operation then returns or raises whatever is
       returned or raised by the ``__missing__(key)`` call.
-      No other operations or methods invoke :meth:`__missing__`. If
-      :meth:`__missing__` is not defined, :exc:`KeyError` is raised.
-      :meth:`__missing__` must be a method; it cannot be an instance variable::
+      No other operations or methods invoke :meth:`~object.__missing__`. If
+      :meth:`~object.__missing__` is not defined, :exc:`KeyError` is raised.
+      :meth:`~object.__missing__` must be a method; it cannot be an instance variable::
 
           >>> class Counter(dict):
           ...     def __missing__(self, key):
@@ -4839,7 +5075,8 @@ can be used interchangeably to index the same dictionary entry.
           1
 
       The example above shows part of the implementation of
-      :class:`collections.Counter`.  A different ``__missing__`` method is used
+      :class:`collections.Counter`.
+      A different :meth:`!__missing__` method is used
       by :class:`collections.defaultdict`.
 
    .. describe:: d[key] = value
@@ -5145,9 +5382,11 @@ before the statement body is executed and exited when the statement ends:
    Returning a true value from this method will cause the :keyword:`with` statement
    to suppress the exception and continue execution with the statement immediately
    following the :keyword:`!with` statement. Otherwise the exception continues
-   propagating after this method has finished executing. Exceptions that occur
-   during execution of this method will replace any exception that occurred in the
-   body of the :keyword:`!with` statement.
+   propagating after this method has finished executing.
+
+   If this method raises an exception while handling an earlier exception from the
+   :keyword:`with` block, the new exception is raised, and the original exception
+   is stored in its :attr:`~BaseException.__context__` attribute.
 
    The exception passed in should never be reraised explicitly - instead, this
    method should return a false value to indicate that the method completed
@@ -5728,7 +5967,7 @@ It is written as ``None``.
 The Ellipsis Object
 -------------------
 
-This object is commonly used used to indicate that something is omitted.
+This object is commonly used to indicate that something is omitted.
 It supports no special operations.  There is exactly one ellipsis object, named
 :const:`Ellipsis` (a built-in name).  ``type(Ellipsis)()`` produces the
 :const:`Ellipsis` singleton.

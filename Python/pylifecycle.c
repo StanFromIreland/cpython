@@ -1609,6 +1609,7 @@ finalize_remove_modules(PyObject *modules, int verbose)
                 PyObject *value = PyObject_GetItem(modules, key);
                 if (value == NULL) {
                     PyErr_FormatUnraisable("Exception ignored on removing modules");
+                    Py_DECREF(key);
                     continue;
                 }
                 CLEAR_MODULE(key, value);
@@ -1929,7 +1930,6 @@ finalize_interp_clear(PyThreadState *tstate)
         _PyArg_Fini();
         _Py_ClearFileSystemEncoding();
         _PyPerfTrampoline_Fini();
-        _PyPerfTrampoline_FreeArenas();
     }
 
     finalize_interp_types(tstate->interp);
@@ -2301,17 +2301,16 @@ new_interpreter(PyThreadState **tstate_p,
        interpreters: disable PyGILState_Check(). */
     runtime->gilstate.check_enabled = 0;
 
-    PyInterpreterState *interp = PyInterpreterState_New();
-    if (interp == NULL) {
-        *tstate_p = NULL;
-        return _PyStatus_OK();
-    }
-    _PyInterpreterState_SetWhence(interp, whence);
-    interp->_ready = 1;
-
     // XXX Might new_interpreter() have been called without the GIL held?
     PyThreadState *save_tstate = _PyThreadState_GET();
     PyThreadState *tstate = NULL;
+    PyInterpreterState *interp;
+    status = _PyInterpreterState_New(save_tstate, &interp);
+    if (interp == NULL) {
+        goto error;
+    }
+    _PyInterpreterState_SetWhence(interp, whence);
+    interp->_ready = 1;
 
     /* From this point until the init_interp_create_gil() call,
        we must not do anything that requires that the GIL be held
@@ -2388,7 +2387,7 @@ error:
     *tstate_p = NULL;
     if (tstate != NULL) {
         Py_EndInterpreter(tstate);
-    } else {
+    } else if (interp != NULL) {
         PyInterpreterState_Delete(interp);
     }
     if (save_tstate != NULL) {

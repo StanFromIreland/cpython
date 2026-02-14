@@ -1221,6 +1221,10 @@ class TestBuggyCases(GetSourceBase):
         self.assertSourceEqual(next(mod2.ge377), 377, 380)
         self.assertSourceEqual(next(mod2.func383()), 385, 388)
 
+    def test_comment_or_empty_line_after_decorator(self):
+        self.assertSourceEqual(mod2.func394, 392, 395)
+        self.assertSourceEqual(mod2.func400, 398, 401)
+
 
 class TestNoEOL(GetSourceBase):
     def setUp(self):
@@ -1986,9 +1990,50 @@ class TestClassesAndFunctions(unittest.TestCase):
 
 class TestFormatAnnotation(unittest.TestCase):
     def test_typing_replacement(self):
-        from test.typinganndata.ann_module9 import ann, ann1
+        from test.typinganndata.ann_module9 import A, ann, ann1
         self.assertEqual(inspect.formatannotation(ann), 'Union[List[str], int]')
         self.assertEqual(inspect.formatannotation(ann1), 'Union[List[testModule.typing.A], int]')
+
+        self.assertEqual(inspect.formatannotation(A, 'testModule.typing'), 'A')
+        self.assertEqual(inspect.formatannotation(A, 'other'), 'testModule.typing.A')
+        self.assertEqual(
+            inspect.formatannotation(ann1, 'testModule.typing'),
+            'Union[List[testModule.typing.A], int]',
+        )
+
+    def test_formatannotationrelativeto(self):
+        from test.typinganndata.ann_module9 import A, ann1
+
+        # Builtin types:
+        self.assertEqual(
+            inspect.formatannotationrelativeto(object)(type),
+            'type',
+        )
+
+        # Custom types:
+        self.assertEqual(
+            inspect.formatannotationrelativeto(None)(A),
+            'testModule.typing.A',
+        )
+
+        class B: ...
+        B.__module__ = 'testModule.typing'
+
+        self.assertEqual(
+            inspect.formatannotationrelativeto(B)(A),
+            'A',
+        )
+
+        self.assertEqual(
+            inspect.formatannotationrelativeto(object)(A),
+            'testModule.typing.A',
+        )
+
+        # Not an instance of "type":
+        self.assertEqual(
+            inspect.formatannotationrelativeto(A)(ann1),
+            'Union[List[testModule.typing.A], int]',
+        )
 
 
 class TestIsMethodDescriptor(unittest.TestCase):
@@ -2916,6 +2961,30 @@ class TestGetGeneratorState(unittest.TestCase):
         next(self.generator)
         # Running after the first yield
         next(self.generator)
+
+    def test_types_coroutine_wrapper_state(self):
+        def gen():
+            yield 1
+            yield 2
+
+        @types.coroutine
+        def wrapped_generator_coro():
+            # return a generator iterator so types.coroutine
+            # wraps it into types._GeneratorWrapper.
+            return gen()
+
+        g = wrapped_generator_coro()
+        self.addCleanup(g.close)
+        self.assertIs(type(g), types._GeneratorWrapper)
+
+        # _GeneratorWrapper must provide gi_suspended/cr_suspended
+        # so inspect.get*state() doesn't raise AttributeError.
+        self.assertEqual(inspect.getgeneratorstate(g), inspect.GEN_CREATED)
+        self.assertEqual(inspect.getcoroutinestate(g), inspect.CORO_CREATED)
+
+        next(g)
+        self.assertEqual(inspect.getgeneratorstate(g), inspect.GEN_SUSPENDED)
+        self.assertEqual(inspect.getcoroutinestate(g), inspect.CORO_SUSPENDED)
 
     def test_easy_debugging(self):
         # repr() and str() of a generator state should contain the state name
@@ -4344,8 +4413,14 @@ class TestSignatureObject(unittest.TestCase):
 
             self.assertEqual(self.signature(C, follow_wrapped=False),
                              varargs_signature)
-            self.assertEqual(self.signature(C.__new__, follow_wrapped=False),
-                             varargs_signature)
+            if support.MISSING_C_DOCSTRINGS:
+                self.assertRaisesRegex(
+                    ValueError, "no signature found",
+                    self.signature, C.__new__, follow_wrapped=False,
+                )
+            else:
+                self.assertEqual(self.signature(C.__new__, follow_wrapped=False),
+                                varargs_signature)
 
     def test_signature_on_class_with_wrapped_new(self):
         with self.subTest('FunctionType'):

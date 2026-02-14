@@ -465,6 +465,8 @@ def isgenerator(object):
         gi_frame        frame object or possibly None once the generator has
                         been exhausted
         gi_running      set to 1 when generator is executing, 0 otherwise
+        gi_suspended    set to 1 when the generator is suspended at a yield point, 0 otherwise
+        gi_yieldfrom    object being iterated by yield from or None
         next            return the next item from the container
         send            resumes the generator and "sends" a value that becomes
                         the result of the current yield-expression
@@ -1168,7 +1170,9 @@ class BlockFinder:
 
     def tokeneater(self, type, token, srowcol, erowcol, line):
         if not self.started and not self.indecorator:
-            if type == tokenize.INDENT or token == "async":
+            if type in (tokenize.INDENT, tokenize.COMMENT, tokenize.NL):
+                pass
+            elif token == "async":
                 pass
             # skip any decorators
             elif token == "@":

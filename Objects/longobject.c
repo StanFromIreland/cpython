@@ -1041,13 +1041,19 @@ _PyLong_AsByteArray(PyLongObject* v,
         *p = (unsigned char)(accum & 0xff);
         p += pincr;
     }
-    else if (j == n && n > 0 && is_signed) {
+    else if (j == n && is_signed) {
         /* The main loop filled the byte array exactly, so the code
            just above didn't get to ensure there's a sign bit, and the
            loop below wouldn't add one either.  Make sure a sign bit
            exists. */
-        unsigned char msb = *(p - pincr);
-        int sign_bit_set = msb >= 0x80;
+        int sign_bit_set;
+        if (n > 0) {
+            unsigned char msb = *(p - pincr);
+            sign_bit_set = msb >= 0x80;
+        }
+        else {
+            sign_bit_set = 0;
+        }
         assert(accumbits == 0);
         if (sign_bit_set == do_twos_comp)
             return 0;
@@ -4318,10 +4324,10 @@ pylong_int_divmod(PyLongObject *v, PyLongObject *w,
     if (result == NULL) {
         return -1;
     }
-    if (!PyTuple_Check(result)) {
+    if (!PyTuple_Check(result) || PyTuple_GET_SIZE(result) != 2) {
         Py_DECREF(result);
         PyErr_SetString(PyExc_ValueError,
-                        "tuple is required from int_divmod()");
+                        "tuple of length 2 is required from int_divmod()");
         return -1;
     }
     PyObject *q = PyTuple_GET_ITEM(result, 0);

@@ -668,6 +668,18 @@ class PosixTester(unittest.TestCase):
         finally:
             fp.close()
 
+    @unittest.skipUnless(hasattr(posix, 'stat'),
+                         'test needs posix.stat()')
+    @unittest.skipUnless(os.stat in os.supports_follow_symlinks,
+                         'test needs follow_symlinks support in os.stat()')
+    def test_stat_fd_zero_follow_symlinks(self):
+        with self.assertRaisesRegex(ValueError,
+                'cannot use fd and follow_symlinks together'):
+            posix.stat(0, follow_symlinks=False)
+        with self.assertRaisesRegex(ValueError,
+                'cannot use fd and follow_symlinks together'):
+            posix.stat(1, follow_symlinks=False)
+
     def test_stat(self):
         self.assertTrue(posix.stat(os_helper.TESTFN))
         self.assertTrue(posix.stat(os.fsencode(os_helper.TESTFN)))
@@ -757,7 +769,7 @@ class PosixTester(unittest.TestCase):
             self.assertRaises((ValueError, OverflowError), posix.makedev, x, minor)
             self.assertRaises((ValueError, OverflowError), posix.makedev, major, x)
 
-        if sys.platform == 'linux':
+        if sys.platform == 'linux' and not support.linked_to_musl():
             NODEV = -1
             self.assertEqual(posix.major(NODEV), NODEV)
             self.assertEqual(posix.minor(NODEV), NODEV)
@@ -1365,6 +1377,14 @@ class PosixTester(unittest.TestCase):
         newparam = copy.replace(param, sched_priority=0)
         self.assertNotEqual(newparam, param)
         self.assertEqual(newparam.sched_priority, 0)
+
+    @requires_sched
+    def test_bug_140634(self):
+        sched_priority = float('inf')  # any new reference
+        param = posix.sched_param(sched_priority)
+        param.__reduce__()
+        del sched_priority, param  # should not crash
+        support.gc_collect()  # just to be sure
 
     @unittest.skipUnless(hasattr(posix, "sched_rr_get_interval"), "no function")
     def test_sched_rr_get_interval(self):
@@ -1991,6 +2011,11 @@ class _PosixSpawnMixin:
     @requires_sched
     @unittest.skipIf(sys.platform.startswith(('freebsd', 'netbsd')),
                      "bpo-34685: test can fail on BSD")
+    @unittest.skipIf(platform.libc_ver()[0] == 'glibc' and
+                     os.sched_getscheduler(0) in [
+                        os.SCHED_BATCH,
+                        os.SCHED_IDLE],
+                     "Skip test due to glibc posix_spawn policy")
     def test_setscheduler_with_policy(self):
         policy = os.sched_getscheduler(0)
         priority = os.sched_get_priority_min(policy)
