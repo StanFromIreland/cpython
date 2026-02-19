@@ -4,9 +4,6 @@
 .. module:: re
    :synopsis: Regular expression operations.
 
-.. moduleauthor:: Fredrik Lundh <fredrik@pythonware.com>
-.. sectionauthor:: Andrew M. Kuchling <amk@amk.ca>
-
 **Source code:** :source:`Lib/re/`
 
 --------------
@@ -1726,7 +1723,6 @@ The equivalent regular expression would be ::
 search() vs. prefixmatch()
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. sectionauthor:: Fred L. Drake, Jr. <fdrake@acm.org>
 
 Python offers different primitive operations based on regular expressions:
 
