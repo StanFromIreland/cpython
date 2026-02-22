@@ -1,1 +1,1 @@
-:meth:`str.maketrans` and :func:`type` now accept :class:`frozendict`.
+:func:`type` now accepts :class:`frozendict` as an argument.
