@@ -335,6 +335,12 @@ class UnicodeFunctionsTest(unittest.TestCase):
         # New in 15.0.0
         self.assertEqual(self.db.decomposition('\U0001e06d'), '' if self.old else '<super> 04B1')
 
+        # Hangul characters
+        self.assertEqual(self.db.decomposition('\uAC00'), '1100 1161')
+        self.assertEqual(self.db.decomposition('\uD4DB'), '1111 1171 11B6')
+        self.assertEqual(self.db.decomposition('\uC2F8'), '110A 1161')
+        self.assertEqual(self.db.decomposition('\uD7A3'), '1112 1175 11C2')
+
         self.assertRaises(TypeError, self.db.decomposition)
         self.assertRaises(TypeError, self.db.decomposition, 'xx')
 
