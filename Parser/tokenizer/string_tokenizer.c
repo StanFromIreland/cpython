@@ -105,7 +105,6 @@ decode_str(const char *input, int single, struct tok_state *tok, int preserve_cr
             return _PyTokenizer_error_ret(tok);
         str = PyBytes_AS_STRING(utf8);
     }
-// Touch a C file
     else if (!_PyTokenizer_ensure_utf8(str, tok, 1)) {
         return _PyTokenizer_error_ret(tok);
     }
