@@ -68,7 +68,8 @@ LIBRARY_FUZZER_PATHS = frozenset({
     Path("Lib/encodings/"),
     Path("Modules/_codecsmodule.c"),
     Path("Modules/cjkcodecs/"),
-    Path("Modules/unicodedata*"),
+    Path("Modules/unicodedata.c"),
+    Path("Modules/unicodedata_db.h"),
     # difflib
     Path("Lib/difflib.py"),
     # email
