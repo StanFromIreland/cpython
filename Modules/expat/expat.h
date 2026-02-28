@@ -42,6 +42,8 @@
    USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
+/* Actually test it this time! */
+
 #ifndef Expat_INCLUDED
 #  define Expat_INCLUDED 1
 
