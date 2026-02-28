@@ -12,6 +12,8 @@
 #define BYTEORDER 1234
 #endif
 
+/* Uh oh! Someone's after adding something that dosen't belong here! */
+
 #define HAVE_MEMMOVE 1
 
 #define XML_NS 1
