@@ -614,19 +614,14 @@ class RawConfigParser(MutableMapping):
         """
     _OPT_TMPL = r"""
         (?P<option>.*?)                    # very permissive!
-        (?P<vi>{delim})\s*                 # followed by any of the
-                                           # allowed delimiters,
-                                           # followed by any space/tab
-        (?P<value>.*)$                     # everything up to eol
+        (?P<vi>{delim})                    # any of the allowed delimiters
+        \s*(?P<value>.*)$                  # everything up to eol
         """
     _OPT_NV_TMPL = r"""
         (?P<option>.*?)                    # very permissive!
-        (?:                                # optionally
-        (?P<vi>{delim})\s*                 # followed by any of the
-                                           # any of the allowed
-                                           # delimiters, followed by any
-                                           # space/tab
-        (?P<value>.*))?$                   # everything up to eol
+        (?:(?P<vi>{delim})                 # optionally followed by
+                                           # any of the allowed delimiters
+        \s*(?P<value>.*))?$                # everything up to eol
         """
     # Interpolation algorithm to be used if the user does not specify another
     _DEFAULT_INTERPOLATION = Interpolation()
