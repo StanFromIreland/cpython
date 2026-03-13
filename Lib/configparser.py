@@ -614,16 +614,15 @@ class RawConfigParser(MutableMapping):
         """
     _OPT_TMPL = r"""
         (?P<option>.*?)                    # very permissive!
-        \s*(?P<vi>{delim})\s*              # any number of space/tab,
-                                           # followed by any of the
+        (?P<vi>{delim})\s*                 # followed by any of the
                                            # allowed delimiters,
                                            # followed by any space/tab
         (?P<value>.*)$                     # everything up to eol
         """
     _OPT_NV_TMPL = r"""
         (?P<option>.*?)                    # very permissive!
-        \s*(?:                             # any number of space/tab,
-        (?P<vi>{delim})\s*                 # optionally followed by
+        (?:                                # optionally
+        (?P<vi>{delim})\s*                 # followed by any of the
                                            # any of the allowed
                                            # delimiters, followed by any
                                            # space/tab
@@ -1155,9 +1154,9 @@ class RawConfigParser(MutableMapping):
             return
 
         st.optname, vi, optval = mo.group('option', 'vi', 'value')
+        st.optname = self.optionxform(st.optname.rstrip())
         if not st.optname:
             st.errors.append(ParsingError(fpname, st.lineno, line))
-        st.optname = self.optionxform(st.optname.rstrip())
         if (self._strict and
             (st.sectname, st.optname) in st.elements_added):
             raise DuplicateOptionError(st.sectname, st.optname,
