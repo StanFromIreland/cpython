@@ -1,0 +1,2 @@
+Fix a SSRF filter bypass in :func:`urllib.parse.urlsplit` where
+the ``hostname`` attribute returned a percent-encoded host.

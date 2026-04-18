@@ -828,6 +828,22 @@ class UrlParseTestCase(unittest.TestCase):
         self.assertEqual(p.hostname, b"fe80::822a:a8ff:fe49:470c%tESt")
         self.assertEqual(p.netloc, b'[FE80::822a:a8ff:fe49:470c%tESt]:1234')
 
+    def test_urlsplit_hostname_percent_decoded(self):
+        for url, expected in (
+            ('http://127%2e0%2e0%2e1/', '127.0.0.1'),
+            ('http://127%2E0%2E0%2E1/', '127.0.0.1'),
+            ('http://loc%61lhost/', 'localhost'),
+            ('http://www.%65xample.com/', 'www.example.com'),
+            ('http://[::%31]/', '::1'),
+            ('http://[fe80::1%25eth0]/', 'fe80::1%eth0'),
+        ):
+            with self.subTest(url=url):
+                self.assertEqual(urllib.parse.urlsplit(url).hostname, expected)
+                self.assertEqual(
+                    urllib.parse.urlsplit(url.encode('ascii')).hostname,
+                    expected.encode('ascii'),
+                )
+
     def test_urlsplit_attributes(self):
         url = "HTTP://WWW.PYTHON.ORG/doc/#frag"
         p = urllib.parse.urlsplit(url)
