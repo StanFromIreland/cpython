@@ -1,0 +1,2 @@
+:class:`fractions.Fraction` now limits scientific-notation exponents to
+:func:`sys.get_int_max_str_digits`.

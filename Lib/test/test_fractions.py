@@ -517,6 +517,18 @@ class FractionTest(unittest.TestCase):
             self.assertRaisesRegex(ValueError, msg, F, '1.1e1' + val)
             self.assertEqual((11, 10), _components(F('1.1e' + '0' * maxdigits)))
             self.assertRaisesRegex(ValueError, msg, F, '1.1e' + '0' * (maxdigits+1))
+            self.assertEqual((10**maxdigits, 1),
+                             _components(F('1e' + str(maxdigits))))
+            self.assertRaisesRegex(ValueError, msg, F,
+                                   '1e' + str(maxdigits + 1))
+            self.assertEqual((1, 10**maxdigits),
+                             _components(F('1e-' + str(maxdigits))))
+            self.assertRaisesRegex(ValueError, msg, F,
+                                   '1e-' + str(maxdigits + 1))
+            self.assertEqual((0, 1),
+                             _components(F('0e' + str(maxdigits + 1))))
+            self.assertEqual((0, 1),
+                             _components(F('0e-' + str(maxdigits + 1))))
 
     def testImmutable(self):
         r = F(7, 3)

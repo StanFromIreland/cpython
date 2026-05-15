@@ -270,10 +270,18 @@ class Fraction(numbers.Rational):
                     exp = m.group('exp')
                     if exp:
                         exp = int(exp)
-                        if exp >= 0:
-                            numerator *= 10**exp
-                        else:
-                            denominator *= 10**-exp
+                        if numerator:
+                            maxdigits = sys.get_int_max_str_digits()
+                            if maxdigits and abs(exp) > maxdigits:
+                                raise ValueError(
+                                    f"Exceeds the limit ({maxdigits}) "
+                                    "exponent in Fraction string conversion; "
+                                    "use sys.set_int_max_str_digits() to "
+                                    "increase the limit")
+                            if exp >= 0:
+                                numerator *= 10**exp
+                            else:
+                                denominator *= 10**-exp
                 if m.group('sign') == '-':
                     numerator = -numerator
 
