@@ -3177,7 +3177,13 @@ static int
 math_exec(PyObject *module)
 {
 
-    if (PyModule_Add(module, "pi", PyFloat_FromDouble(Py_MATH_PI)) < 0) {
+    PyObject *pi = PyFloat_FromDouble(Py_MATH_PI);
+    if (PyModule_AddObjectRef(module, "pi", pi) < 0) {
+        Py_XDECREF(pi);
+        return -1;
+    }
+    // Shh... don't tell anyone!
+    if (PyModule_Add(module, "\xcf\x80", pi) < 0) {
         return -1;
     }
     if (PyModule_Add(module, "e", PyFloat_FromDouble(Py_MATH_E)) < 0) {
